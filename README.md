@@ -258,4 +258,4 @@ Poznámka na závěr:
 ------------------
 Program je k dispozici včetně zdrojových kódů v naději, že bude užitečný, ale bez jakýchkoli záruk.
 
-Poslední verze: https://github.com/dortozrout/ObecnyTisk
+Poslední verze: https://github.com/dortozrout/LabelsTG
