@@ -62,7 +62,7 @@ namespace LabelsTG.Labels
 
         public static List<object> ConfigItems { get; private set; }
 
-        internal static readonly char[] separator = new[] { '\r', '\n' };
+        internal static readonly char[] separator = ['\r', '\n'];
 
         static Configuration()
         {
@@ -89,7 +89,7 @@ namespace LabelsTG.Labels
                 new ConfigItem<string>("HlavniSablonaData", "", "adresa souboru se vstupnimi daty pro tisk pomoci hlavni sablony", true, () => MasterTemplateInputAddress, (value) => MasterTemplateInputAddress = value,
                 "keys: "),
                 new ConfigItem<string>("Logsoubor", "", "umisteni logovaciho souboru", true, () => LogFile, (value) => LogFile = value),
-                new ConfigItem<Color>("Barva", "Green", "nastaveni barevneho zvyrazneni (gray, blue, vychozi = zelena)", false, () => UserDefinedColor, (value) => UserDefinedColor = value),
+                new ConfigItem<Color>("Barva", "Green", "nastaveni barevneho zvyrazneni (Red, Blue atd., nebo 0 - 15, vychozi = Green)", false, () => UserDefinedColor, (value) => UserDefinedColor = value),
             ];
             Header = string.Empty;
         }
@@ -98,7 +98,7 @@ namespace LabelsTG.Labels
         public static int Load(string configFile) //jmeno konfig souboru v adresari %appdata%/TiskStitku
         {
             ConfigFile = configFile;
-            int result = 0;
+            int result;
             try //pokusi se vytvorit adresar CCData v %appdata%, pokud neexistuje
             {
                 if (!Directory.Exists(ConfigPath))
@@ -107,7 +107,6 @@ namespace LabelsTG.Labels
             catch (Exception ex)
             {
                 ErrorHandler.HandleError("Konfigurace", ex);
-                result = 1;
             }
             string fullPath = Path.Combine(ConfigPath, configFile);
 

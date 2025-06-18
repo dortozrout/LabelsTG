@@ -15,6 +15,9 @@ namespace LabelsTG
         public event Action? RestartRequested;
         public event Action? PrintOneFileRequested;
 
+        /// <summary>
+        /// Initializes a new instance of the Controller class and wires up event handlers.
+        /// </summary>
         public Controller(View view, Model model)
         {
             View = view;
@@ -29,7 +32,6 @@ namespace LabelsTG
             View.AddNewFileRequested += () => AddNewFile(true);
             Model.OnFilePrintToScreen += (body) => View.SetTextView(body);
             View.ShowHelpRequested += () => RunExternalProcess("https://github.com/dortozrout/LabelsTG?tab=readme-ov-file#readme");
-
 
             View.Loaded += () =>
             {
@@ -49,6 +51,9 @@ namespace LabelsTG
             };
         }
 
+        /// <summary>
+        /// Handles logic when the view is loaded, such as updating the list view and handling login.
+        /// </summary>
         private void HandleViewLoaded()
         {
             UpdateListView();
@@ -70,6 +75,9 @@ namespace LabelsTG
             }
         }
 
+        /// <summary>
+        /// Toggles between settings view and EPL files view.
+        /// </summary>
         private void ToggleSettingsView()
         {
             isSetting = !isSetting;
@@ -82,7 +90,9 @@ namespace LabelsTG
             View.listView.SetFocus();
         }
 
-        //Print the selected EplFile
+        /// <summary>
+        /// Prints the selected EPL file, optionally taking a specific file as parameter.
+        /// </summary>
         public void PrintEplFile(EplFile? eplFile = null)
         {
             eplFile ??= GetSelectedItem() as EplFile;
@@ -100,10 +110,18 @@ namespace LabelsTG
                 Model.PrintEplFile(eplFile);
             }
         }
+
+        /// <summary>
+        /// Finds files whose key contains the searched text (case-insensitive).
+        /// </summary>
         private static List<EplFile> FindFiles(List<EplFile> files, string searchedText)
         {
             return files.FindAll(e => e.Key.Contains(searchedText, StringComparison.OrdinalIgnoreCase));
         }
+
+        /// <summary>
+        /// Updates the list view source and related UI elements based on the current mode (settings/EPL).
+        /// </summary>
         private void UpdateListView()
         {
             if (isSetting)
@@ -131,6 +149,10 @@ namespace LabelsTG
             }
             View.listView.SelectedItem = 0;
         }
+
+        /// <summary>
+        /// Creates a new file (EPL or settings) based on the current mode.
+        /// </summary>
         public void CreateNewFile()
         {
             if (!isSetting)
@@ -164,6 +186,9 @@ namespace LabelsTG
             }
         }
 
+        /// <summary>
+        /// Gets the currently selected item from the list view.
+        /// </summary>
         public BaseItem GetSelectedItem()
         {
             //Get the selected item from the list view
@@ -173,6 +198,10 @@ namespace LabelsTG
             }
             return null!; // Return null if no item is selected
         }
+
+        /// <summary>
+        /// Deletes the currently selected file or configuration item.
+        /// </summary>
         public void DeleteSelectedFile()
         {
             BaseItem item = GetSelectedItem();
@@ -211,6 +240,10 @@ namespace LabelsTG
             }
             UpdateListView();
         }
+
+        /// <summary>
+        /// Saves the currently selected file or configuration item.
+        /// </summary>
         public void SaveSelectedFile()
         {
             BaseItem item = GetSelectedItem();
@@ -252,6 +285,10 @@ namespace LabelsTG
                 return;
             }
         }
+
+        /// <summary>
+        /// Deletes a string configuration item, handling file and non-file cases.
+        /// </summary>
         private void DeleteStringConfigItem(ConfigItem<string> configItem)
         {
             if (configItem.IsFile)
@@ -281,6 +318,9 @@ namespace LabelsTG
             }
         }
 
+        /// <summary>
+        /// Saves a string configuration item, handling file and non-file cases.
+        /// </summary>
         private void SaveStringConfigItem(ConfigItem<string> configItem)
         {
             if (configItem.IsFile)
@@ -336,6 +376,10 @@ namespace LabelsTG
                 View.ShowInfo("Configuration value saved successfully.");
             }
         }
+
+        /// <summary>
+        /// Saves a file or configuration item and notifies the user of the result.
+        /// </summary>
         private static void SaveAndNotify(BaseItem item)
         {
             int result = Model.SaveFile(item);
@@ -348,6 +392,10 @@ namespace LabelsTG
                 View.ShowError("Error saving file.");
             }
         }
+
+        /// <summary>
+        /// Deletes a file or configuration item and notifies the user of the result.
+        /// </summary>
         private void DeleteAndNotify(BaseItem item)
         {
             int result = Model.DeleteFile(item);
@@ -360,6 +408,10 @@ namespace LabelsTG
                 View.ShowError("Error deleting file.");
             }
         }
+
+        /// <summary>
+        /// Writes the configuration items to the configuration file.
+        /// </summary>
         private void WriteConfig(List<object> configs)
         {
             string configFilePath = Path.Combine(Configuration.ConfigPath, Configuration.ConfigFile);
@@ -389,6 +441,10 @@ namespace LabelsTG
                 ErrorHandler.HandleError("Configuration", ex);
             }
         }
+
+        /// <summary>
+        /// Updates the text view with the content of the currently selected item.
+        /// </summary>
         private void UpdateTextView()
         {
             var selected = GetSelectedItem();
@@ -407,6 +463,9 @@ namespace LabelsTG
             });
         }
 
+        /// <summary>
+        /// Handles opening the selected item (printing or showing content).
+        /// </summary>
         private void HandleOpenSelectedItem()
         {
             if (isSetting)
@@ -430,6 +489,9 @@ namespace LabelsTG
             }
         }
 
+        /// <summary>
+        /// Handles key press events in the list view, including search, delete, and navigation.
+        /// </summary>
         private void HandleKeyPress(Terminal.Gui.View.KeyEventEventArgs args)
         {
             var key = args.KeyEvent;
@@ -477,6 +539,9 @@ namespace LabelsTG
             }
         }
 
+        /// <summary>
+        /// Handles search key presses, updating the filter and list view.
+        /// </summary>
         private void HandleSearchKeyPress(char keyValue)
         {
             searchBuffer += keyValue;
@@ -495,6 +560,9 @@ namespace LabelsTG
             }
         }
 
+        /// <summary>
+        /// Handles backspace key presses in the search buffer.
+        /// </summary>
         private void HandleBackspaceKeyPress()
         {
             searchBuffer = searchBuffer[..^1];
@@ -503,18 +571,29 @@ namespace LabelsTG
             View.SetListViewSource(matchFiles);
         }
 
+        /// <summary>
+        /// Handles escape key presses, clearing the search buffer and resetting the list view.
+        /// </summary>
         private void HandleEscapeKeyPress()
         {
             searchBuffer = "";
             UpdateFilterField(searchBuffer);
             UpdateListView();
         }
+
+        /// <summary>
+        /// Updates the filter field UI element with the current search buffer.
+        /// </summary>
         private void UpdateFilterField(string searchBuffer)
         {
             if (!string.IsNullOrEmpty(searchBuffer))
                 View.filterField.Text = "Filter:" + searchBuffer;
             View.filterField.Visible = !string.IsNullOrEmpty(searchBuffer);
         }
+
+        /// <summary>
+        /// Adds a new file or settings file, depending on the current mode.
+        /// </summary>
         private void AddNewFile(bool fromMenu = false)
         {
             if (isSetting)
@@ -531,6 +610,9 @@ namespace LabelsTG
             }
         }
 
+        /// <summary>
+        /// Handles adding a new settings file, either from menu or current selection.
+        /// </summary>
         private void HandleAddNewSettingsFile(bool fromMenu)
         {
             BaseItem? selectedItem;
@@ -556,6 +638,9 @@ namespace LabelsTG
             }
         }
 
+        /// <summary>
+        /// Handles the selection and loading of a settings file.
+        /// </summary>
         private void HandleSettingsFileSelection(ConfigItem<string> configItem)
         {
             string? filePath = View.LaunchOpenDialog("Select a settings file", Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments));
@@ -583,6 +668,9 @@ namespace LabelsTG
             }
         }
 
+        /// <summary>
+        /// Handles the selection and setting of a directory for templates.
+        /// </summary>
         private void HandleDirectorySelection(BaseItem selectedItem)
         {
             string? directory = View.LaunchOpenDialog("Select templates directory", "Select a directory", Configuration.TemplatesDirectory, canChooseFiles: false);
@@ -608,6 +696,10 @@ namespace LabelsTG
             }
             WriteConfig(Configuration.ConfigItems);
         }
+
+        /// <summary>
+        /// Handles adding a new EPL file by selecting and loading its content.
+        /// </summary>
         private void HandleAddNewEplFile()
         {
             string? fileAddress = View.LaunchOpenDialog("Select a file", Configuration.TemplatesDirectory);
@@ -632,6 +724,9 @@ namespace LabelsTG
             }
         }
 
+        /// <summary>
+        /// Runs an external process or opens a file/URL, optionally waiting for it to exit.
+        /// </summary>
         private static void RunExternalProcess(string filePath, string? arguments = null, bool waitForExit = false)
         {
             try

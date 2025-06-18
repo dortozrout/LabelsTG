@@ -10,19 +10,20 @@ namespace LabelsTG
         public List<ConfigItem<string>> SettingsFilesAndDirs { get; set; }
         public EplFile SelectedEplFile { get; set; }
         public event Action<string> OnFilePrintToScreen;
+
         public Model()
         {
-            //nacteni epl prikazu z adresare
+            // Loads EPL files from directory or from a master template file, depending on configuration.
             if (string.IsNullOrEmpty(Configuration.MasterTemplateAddress))
             {
                 EplFiles = Configuration.SearchedText == "" ?
                    new EplFileLoader().LoadFiles(Configuration.TemplatesDirectory) :
                    new EplFileLoader().LoadFiles(Configuration.TemplatesDirectory, Configuration.SearchedText);
             }
-            else //ze souboru definovaneho v Configuration.MasterTemplateInputAddress
+            else // Loads from file defined in Configuration.MasterTemplateInputAddress
                 EplFiles = new EplFileLoader().ReadFromFile(Configuration.MasterTemplateInputAddress, Configuration.MasterTemplateAddress, Configuration.SearchedText);
 
-            //nacteni nastaveni
+            // Loads settings files and prepares filtered lists for new files and files/directories.
             SettingsFiles = EplFileLoader.LoadSettings(Configuration.ConfigItems);
             NewSettingsFiles = SettingsFiles
                 .OfType<ConfigItem<string>>()
@@ -33,14 +34,26 @@ namespace LabelsTG
                 .Where(configItem => (configItem.IsFile || configItem.Key == "Adresar") && configItem.Key != "ConfigFile")
                 .ToList();
         }
+
+        /// <summary>
+        /// Returns the list of loaded EPL files.
+        /// </summary>
         public List<EplFile> GetEplFiles()
         {
             return EplFiles;
         }
+
+        /// <summary>
+        /// Adds a new EPL file to the list.
+        /// </summary>
         public void AddEplFile(EplFile eplFile)
         {
             EplFiles.Add(eplFile);
         }
+
+        /// <summary>
+        /// Prints the given EPL file. If printer type is 3, prints to screen; otherwise, sends to printer and logs if needed.
+        /// </summary>
         public void PrintEplFile(EplFile eplFile = null)
         {
             if (eplFile.Print)
@@ -56,6 +69,10 @@ namespace LabelsTG
                 }
             }
         }
+
+        /// <summary>
+        /// Saves the given item (ConfigItem or EplFile) to disk.
+        /// </summary>
         public static int SaveFile(BaseItem item)
         {
             if (item == null || string.IsNullOrEmpty(item.Key))
@@ -84,6 +101,10 @@ namespace LabelsTG
                 throw new InvalidOperationException("Error saving file: \n" + ex.Message);
             }
         }
+
+        /// <summary>
+        /// Deletes the given item (ConfigItem or EplFile) from disk and updates internal lists.
+        /// </summary>
         public int DeleteFile(BaseItem item)
         {
             if (item == null || string.IsNullOrEmpty(item.Key))
@@ -116,10 +137,18 @@ namespace LabelsTG
                 return -1;
             }
         }
+
+        /// <summary>
+        /// Returns the list of loaded settings files.
+        /// </summary>
         public List<BaseItem> GetSettingsFiles()
         {
             return SettingsFiles;
         }
+
+        /// <summary>
+        /// Reloads the settings files and updates the filtered lists for new files.
+        /// </summary>
         public void UpdateSettingsFiles()
         {
             SettingsFiles = EplFileLoader.LoadSettings(Configuration.ConfigItems);
