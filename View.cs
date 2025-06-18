@@ -13,6 +13,7 @@ namespace LabelsTG
         public event Action? ToggleSettingsViewRequested;
         public event Action? RestartRequested;
         public event Action? AddNewFileRequested;
+        public event Action? ShowHelpRequested;
 
         public ListView listView;
         public Button buttonQuit;
@@ -27,7 +28,7 @@ namespace LabelsTG
         private static ColorScheme? dialogColorScheme;
         private readonly ColorScheme filterColorScheme;
 
-        public View() : base(Configuration.AppName)
+        public View() : base("Tisk štítků na EPL tiskárně v. " + Configuration.AppName)
         {
             // Set the colors of the window
             Color usercolor = Configuration.UserDefinedColor;
@@ -81,6 +82,16 @@ namespace LabelsTG
                     new("_Delete", "", () => DeleteFileRequested?.Invoke()),
                     new("_Print", "", () => PrintFileRequested?.Invoke()),
                     new("_Quit", "", () => Application.RequestStop()),
+                }),
+                new MenuBarItem("_Settings", new MenuItem[]
+                {
+                    new("_Edit Settings", "", () => ToggleSettingsViewRequested?.Invoke()),
+                    new("_Restart", "", () => RestartRequested?.Invoke()),
+                }),
+                new MenuBarItem("_Help", new MenuItem[]
+                {
+                    new("_Help", "", () => ShowHelpRequested?.Invoke()),
+                    new("_About", "", () => ShowInfo("LabelsTG - Print Labels On EPL/ZPL Printer\nVersion: " + Configuration.AppName + "\nAuthor: Z.Hunal\nLicense: MIT")),
                 }),
             ])
             {

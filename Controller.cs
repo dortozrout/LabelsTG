@@ -1,6 +1,7 @@
 #nullable enable
 using LabelsTG.Labels;
 using Terminal.Gui;
+using System.Diagnostics;
 
 namespace LabelsTG
 {
@@ -27,6 +28,8 @@ namespace LabelsTG
             View.RestartRequested += () => RestartRequested?.Invoke();
             View.AddNewFileRequested += () => AddNewFile(true);
             Model.OnFilePrintToScreen += (body) => View.SetTextView(body);
+            View.ShowHelpRequested += () => RunExternalProcess("https://github.com/dortozrout/LabelsTG?tab=readme-ov-file#readme");
+
 
             View.Loaded += () =>
             {
@@ -605,7 +608,6 @@ namespace LabelsTG
             }
             WriteConfig(Configuration.ConfigItems);
         }
-
         private void HandleAddNewEplFile()
         {
             string? fileAddress = View.LaunchOpenDialog("Select a file", Configuration.TemplatesDirectory);
@@ -627,6 +629,29 @@ namespace LabelsTG
             catch (Exception ex)
             {
                 View.ShowError($"Error loading file: {ex.Message}");
+            }
+        }
+
+        private static void RunExternalProcess(string filePath, string? arguments = null, bool waitForExit = false)
+        {
+            try
+            {
+                var processStartInfo = new ProcessStartInfo
+                {
+                    FileName = filePath,
+                    Arguments = arguments ?? "",
+                    UseShellExecute = true,
+                    CreateNoWindow = true
+                };
+                using var process = Process.Start(processStartInfo);
+                if (waitForExit && process != null)
+                {
+                    process.WaitForExit();
+                }
+            }
+            catch (Exception ex)
+            {
+                View.ShowError($"Error running external process: {ex.Message}");
             }
         }
     }

@@ -9,7 +9,7 @@ namespace LabelsTG.Labels
     class Configuration
     {
         //Nazev aplikace ktery se zobrazi v hlavicce
-        public const string AppName = "Tisk štítků na EPL tiskárně v.TG202506";
+        public const string AppName = "TG202506";
 
         //Adresa konfig souboru
         public static string ConfigFile { get; set; }
