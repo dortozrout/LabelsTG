@@ -121,9 +121,9 @@ lze zadat formát data.
 
 \<date+30|expirace_sarze|[format:dd.MM.yyyy]\> - nahradí se datem za 30 dní nebo datem definovaným textem za značkou '|'. Může být datum nebo klíč v souboru primárních dat. Pokud nerozpozná datum nebo nenajde klíč zobrazí program dotaz na expiraci.  
 
-\<sequence|start|počet kroků|[save]|[formát]\> - nahradí se číslem definovaným parametrem start. Šablona se tiskne opakovaně (počet kroků), číslo se zvyšuje vždy o jedna. Nepovinný parametr "save" uloží startovní pozici (nelze pokud se tiskne s hlavní šablonou). Nepovinný parametr "formát" je text, který definuje formát čísla (např "000" - číslo má nejméně 3 číslice)  
+\<sequence|start|počet kroků|[save]|[format:formát]\> - nahradí se číslem definovaným parametrem start. Šablona se tiskne opakovaně (počet kroků), číslo se zvyšuje vždy o jedna. Nepovinný parametr "save" uloží startovní pozici (nelze pokud se tiskne s hlavní šablonou). Nepovinný parametr "formát" je text, který definuje formát čísla (např "000" - číslo má nejméně 3 číslice)  
 
-\<number|číslo|[formát]\> - nahradí se číslem "číslo" případně zobrazí
+\<number|číslo|[format:formát]\> - nahradí se číslem "číslo" případně zobrazí
 dotaz (zadej číslo). Formát čísla může být např. d6 - minimálně 6 číslic.
 
 \<uzivatel\> - pokud je vyžadována identifikace uživatele, nahradí se značkou uživatele.  

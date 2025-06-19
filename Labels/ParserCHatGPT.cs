@@ -73,41 +73,48 @@ namespace LabelsTG.Labels
 
         private string HandleSequenceAndOtherKeys(string template, List<string> keys, string sequenceKey)
         {
-            // Parse the sequence start and count from the key
+            // Parse the sequence start and steps from the key
             var keyParts = sequenceKey.Trim('<', '>').Split('|');
             if (keyParts.Length < 3 || keyParts.Length > 5)
             {
-                // Handle the error for invalid sequence key format
-                View.ShowError($"Chybný formát sekvence klíče ({sequenceKey})! Zkontroluj formát klíče a zkus to znovu.");
-                //new NotificationForm("Chyba v klíči sequence", $"Chybný formát seqence klíče ({sequenceKey})!").Display();
-                //Console.ReadKey();
+                View.ShowError($"Chybný formát sekvence klíče ({sequenceKey})! Správný formát: <sequence|start|steps|[save]|[format:0000]>");
+                return string.Empty;
             }
 
             int start = HandleInput<int>(CurrentEplFile, "Zadej počátek sekvence: ", keyParts[1]);
             if (!continueProcessing) return string.Empty;
-            int count = HandleInput<int>(CurrentEplFile, "Zadej počet kroků: ", keyParts[2]);
-            string format;
-            if (sequenceKey.Contains("save", StringComparison.CurrentCultureIgnoreCase))
-            {
-                string newSequenceKey = $"<sequence|{start + count}|{keyParts[2]}";
+            int steps = HandleInput<int>(CurrentEplFile, "Zadej počet kroků: ", keyParts[2]);
+            if (!continueProcessing) return string.Empty;
 
-                // If there are additional parts to the sequence key, append them
+            // Support both <sequence|start|steps|save|format:000> and <sequence|start|steps|format:000|save>
+            bool save = false;
+            string format = "";
+
+            // Check all extra parts for "save" and "format:"
+            for (int i = 3; i < keyParts.Length; i++)
+            {
+                if (keyParts[i].Equals("save", StringComparison.OrdinalIgnoreCase))
+                    save = true;
+                else if (keyParts[i].StartsWith("format:", StringComparison.OrdinalIgnoreCase))
+                    format = keyParts[i].Substring("format:".Length);
+            }
+
+            if (save)
+            {
+                // Prepare new sequence key for saving, preserving order of extra parts
+                var newParts = new List<string> { "sequence", (start + steps).ToString(), keyParts[2] };
                 for (int i = 3; i < keyParts.Length; i++)
                 {
-                    newSequenceKey += $"|{keyParts[i]}";
+                    if (keyParts[i].Equals("save", StringComparison.OrdinalIgnoreCase) || keyParts[i].StartsWith("format:", StringComparison.OrdinalIgnoreCase))
+                        newParts.Add(keyParts[i]);
                 }
-                newSequenceKey += ">";
-
+                string newSequenceKey = $"<{string.Join("|", newParts)}>";
                 string newTemplate = CurrentEplFile.Template.Replace(sequenceKey, newSequenceKey);
-                // Save the new template to the file
                 OnTemplateSave?.Invoke(newTemplate);
-                //Model.SaveTemplate(CurrentEplFile, newTemplate);
-                format = keyParts.Length == 5 ? keyParts[4] : "";
             }
-            else format = keyParts.Length == 4 ? keyParts[3] : "";
 
             // Generate the sequence of numbers
-            var sequenceValues = Enumerable.Range(start, count).ToList();
+            var sequenceValues = Enumerable.Range(start, steps).ToList();
 
             string result = string.Empty;
 
