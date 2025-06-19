@@ -339,24 +339,34 @@ namespace LabelsTG.Labels
 
         private string HandleNumberKey(string key)
         {
-            // <number|text|format>
+            // <number|text|format:format>
+            // Example: <number|serial|format:0000>
             string[] parts = key.Trim('<', '>').Split('|');
-            if (parts.Length < 2 || parts.Length > 3)
+            if (parts.Length < 2)
             {
-                // Handle the error for invalid number key format
                 View.ShowError($"Wrong key format ({key})! Check the key format and try again.");
                 return string.Empty;
             }
-            if (int.TryParse(parts[1], out int number))
+
+            string prompt = parts[1];
+            string format = "";
+
+            // Check for format: in the third part
+            if (parts.Length == 3 && parts[2].StartsWith("format:"))
             {
-                // If the second part is a valid number, return it
-                return number.ToString(parts.Length == 3 ? parts[2] : "");
+                format = parts[2]["format:".Length..];
+            }
+
+            if (int.TryParse(prompt, out int number))
+            {
+                // If the second part is a valid number, return it formatted
+                return string.IsNullOrEmpty(format) ? number.ToString() : number.ToString(format);
             }
             else
             {
-                // If the second part is not a valid number, prompt the user for input
-                number = HandleInput<int>(CurrentEplFile, "Zadej " + parts[1] + ": ", "");
-                return number.ToString(parts.Length == 3 ? parts[2] : "");
+                // Prompt the user for input
+                number = HandleInput<int>(CurrentEplFile, "Zadej " + prompt + ": ", "");
+                return string.IsNullOrEmpty(format) ? number.ToString() : number.ToString(format);
             }
         }
         private string HandleDefaultKey(string key)
