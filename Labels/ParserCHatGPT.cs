@@ -10,23 +10,23 @@ namespace LabelsTG.Labels
         public Parser()
         {
             // Load primary data from the specified address
-            primaryData = LoadPrimaryData();
+            primaryData = LoadPrimaryData(Configuration.PrimaryDataAdress);
         }
 
-        private Dictionary<string, string> LoadPrimaryData()
+        private Dictionary<string, string> LoadPrimaryData(string fileAddress)
         {
-            var rv = new Dictionary<string, string>();
-            if (string.IsNullOrEmpty(Configuration.PrimaryDataAdress)) return rv;
+            var rv = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+            if (string.IsNullOrEmpty(fileAddress)) return rv;
 
             try
             {
-                string[] dataArray = File.ReadAllLines(Configuration.PrimaryDataAdress);
+                string[] dataArray = File.ReadAllLines(fileAddress);
                 foreach (string line in dataArray)
                 {
                     int indexOfSeparator = line.IndexOf(':');
                     if (!line.StartsWith('#') && indexOfSeparator > 0)
                     {
-                        string key = line[..indexOfSeparator].Trim().ToLower();
+                        string key = line[..indexOfSeparator].Trim();
                         string value = line[(indexOfSeparator + 1)..].Trim();
                         rv.Add(key, value);
                     }
@@ -165,7 +165,7 @@ namespace LabelsTG.Labels
         {
             try
             {
-                return primaryData[key.Trim('<', '>').ToLower()];
+                return primaryData[key.Trim('<', '>')];//.ToLower()];
             }
             catch (KeyNotFoundException)
             {
@@ -175,22 +175,22 @@ namespace LabelsTG.Labels
 
         private string FindValueNotInPrimaryData(string key)
         {
-            if (key == "<GS1>")
+            if (key == "<GS1>" || key == "<gs1>")
                 return "\u001D";
 
             if (Configuration.Login && key == "<uzivatel>")
                 return Configuration.User;
 
-            if (key.StartsWith("<time"))
+            if (key.StartsWith("<time", StringComparison.OrdinalIgnoreCase))
                 return HandleTimeKey(key);
 
-            if (key.StartsWith("<date"))
+            if (key.StartsWith("<date", StringComparison.OrdinalIgnoreCase))
                 return HandleDateKey(key);
 
-            if (key.StartsWith("<pocet"))
+            if (key.StartsWith("<pocet", StringComparison.OrdinalIgnoreCase))
                 return HandlePocetKey(key);
 
-            if (key.StartsWith("<number"))
+            if (key.StartsWith("<number", StringComparison.OrdinalIgnoreCase))
                 return HandleNumberKey(key);
 
             return HandleDefaultKey(key);
