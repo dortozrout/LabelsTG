@@ -1,6 +1,7 @@
 #nullable enable
 using Terminal.Gui;
 using LabelsTG.Labels;
+using System;
 
 namespace LabelsTG
 {
@@ -14,6 +15,7 @@ namespace LabelsTG
         public event Action? RestartRequested;
         public event Action? AddNewFileRequested;
         public event Action? ShowHelpRequested;
+        public event Action? OpenInExtEditorRequested;
 
         public ListView listView;
         public Button buttonQuit;
@@ -76,8 +78,9 @@ namespace LabelsTG
                 new MenuBarItem("_File", new MenuItem[]
                 {
                     new("_New", "", () => NewFileRequested?.Invoke()),
-                    new("_Open", "", () => AddNewFileRequested?.Invoke()),
+                    new("_Open new file", "", () => AddNewFileRequested?.Invoke()),
                     new("_Edit", "", () => textView?.SetFocus()),
+                    new("_Edit in external editor", "", () => OpenInExtEditorRequested?.Invoke()),
                     new("_Save", "", () => SaveFileRequested?.Invoke()),
                     new("_Delete", "", () => DeleteFileRequested?.Invoke()),
                     new("_Print", "", () => PrintFileRequested?.Invoke()),

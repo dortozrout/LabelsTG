@@ -241,7 +241,9 @@ Ovládání GUI.
 -------------
 **File** (EPL Files)
 - **New**: Vytvoření nového EPL souboru v adresáři definovaném v config souboru (`Adresar: C:\xxx\yyy`). Není dostupné v režimu jedné šablony.
-- **Open**: Otevření existující EPL šablony (vytvoří se kopie v adresáři).
+- **Open new file**: Otevření existující EPL šablony (vytvoří se kopie v adresáři).
+- **Edit**: Editace šablony pomocí vestavěného editoru.
+- **Edit in external editor**: Editace pomocí externího editoru.
 - **Save**: Uložení aktuální šablony.
 - **Delete**: Vymazání vybrané šablony.
 - **Print**: Odeslání aktuální šablony na tiskárnu podle nastavení v konfiguračním souboru.
@@ -249,7 +251,9 @@ Ovládání GUI.
 
 **File** (Settings)
 - **New**: Vytvoření nového souboru a zápis cesty do konfigurace.
-- **Open**: Otevření existujícího souboru, adresáře a zápis cesty do konfigurace.
+- **Open new file**: Otevření existujícího souboru, adresáře a zápis cesty do konfigurace.
+- **Edit**: Editace souboru pomocí vestavěného editoru.
+- **Edit in external editor**: Editace pomocí externího editoru. Pokud se jedná o adresář, otevře se v souborovém manažeru.
 - **Save**: Uložení aktuální položky.
 - **Delete**: Vymazání vybrané položky - nastavení na výchozí hodnotu.
 

@@ -2,6 +2,7 @@
 using LabelsTG.Labels;
 using Terminal.Gui;
 using System.Diagnostics;
+using System.IO;
 
 namespace LabelsTG
 {
@@ -32,6 +33,7 @@ namespace LabelsTG
             View.AddNewFileRequested += () => AddNewFile(true);
             Model.OnFilePrintToScreen += (body) => View.SetTextView(body);
             View.ShowHelpRequested += () => RunExternalProcess("https://github.com/dortozrout/LabelsTG?tab=readme-ov-file#readme");
+            View.OpenInExtEditorRequested += () => OpenInExternalEditor();
 
             View.Loaded += () =>
             {
@@ -747,6 +749,26 @@ namespace LabelsTG
             catch (Exception ex)
             {
                 View.ShowError($"Error running external process: {ex.Message}");
+            }
+        }
+        private void OpenInExternalEditor()
+        {
+            BaseItem? selectedItem = GetSelectedItem();
+            if (selectedItem is EplFile eplFile)
+            {
+                RunExternalProcess(eplFile.FileAddress, waitForExit: false);
+            }
+            else if (selectedItem is ConfigItem<string> configItem && configItem.IsFile)
+            {
+                RunExternalProcess(configItem.Value, waitForExit: false);
+            }
+            else if (selectedItem is ConfigItem<string> configItemString && Directory.Exists(configItemString.Value))
+            {
+                RunExternalProcess(configItemString.Value, waitForExit: false);
+            }
+            else
+            {
+                View.ShowError("No valid file selected for external editor.");
             }
         }
     }

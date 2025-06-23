@@ -59,7 +59,7 @@ namespace LabelsTG.Labels
             List<string> keys = ReadKeys(template);
 
             // Check if there's a sequence key, and handle it
-            string sequenceKey = keys.FirstOrDefault(k => k.StartsWith("<sequence|"));
+            string sequenceKey = keys.FirstOrDefault(k => k.StartsWith("<sequence|", StringComparison.OrdinalIgnoreCase));
 
             if (sequenceKey != null)
             {
@@ -249,8 +249,8 @@ namespace LabelsTG.Labels
         private string HandleDateKey(string key)
         {
             // Extract the date format if specified, otherwise use the default format
-            string format = key.Contains("format:")
-            ? key[(key.IndexOf("format:") + 7)..].TrimEnd('>')
+            string format = key.Contains("format:", StringComparison.OrdinalIgnoreCase)
+            ? key[(key.IndexOf(":") + 1)..].TrimEnd('>')
             : "dd.MM.yyyy";
 
             // Check if the key contains a drift value (e.g., <date+5>)
@@ -262,7 +262,7 @@ namespace LabelsTG.Labels
             var keyParts = key.Trim('<', '>').Split(new[] { '+', '|' }, StringSplitOptions.None);
 
             // Remove the format part from the key parts if it exists
-            if (keyParts.Last().StartsWith("format:"))
+            if (keyParts.Last().StartsWith("format:", StringComparison.OrdinalIgnoreCase))
                 keyParts = keyParts.Take(keyParts.Length - 1).ToArray();
 
             // Handle the "exp" keyword for expiration
@@ -359,7 +359,7 @@ namespace LabelsTG.Labels
             string format = "";
 
             // Check for format: in the third part
-            if (parts.Length == 3 && parts[2].StartsWith("format:"))
+            if (parts.Length == 3 && parts[2].StartsWith("format:", StringComparison.OrdinalIgnoreCase))
             {
                 format = parts[2]["format:".Length..];
             }
