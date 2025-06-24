@@ -1,5 +1,10 @@
 namespace LabelsTG.Labels
 {
+    /// <summary>
+    /// Class for parsing and processing EPL templates.
+    /// It handles the replacement of keys in the template with values from primary data,
+    /// as well as user inputs for dynamic keys such as dates, times, and sequences.
+    /// </summary>
     public class Parser
     {
         private readonly Dictionary<string, string> primaryData;
@@ -13,6 +18,10 @@ namespace LabelsTG.Labels
             primaryData = LoadPrimaryData(Configuration.PrimaryDataAdress);
         }
 
+        /// <summary>
+        /// Loads primary data from a file at the specified address.
+        /// If the file is empty or not found, returns an empty dictionary.
+        /// </summary> 
         private Dictionary<string, string> LoadPrimaryData(string fileAddress)
         {
             var rv = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
@@ -39,7 +48,17 @@ namespace LabelsTG.Labels
 
             return rv;
         }
-
+        /// <summary>
+        /// Processes the given EPL file by filling out its template with values from primary data
+        /// and user inputs. It replaces keys in the template with corresponding values,
+        /// handles sequences, and manages user inputs for dynamic keys such as dates, times, and
+        /// quantities.
+        /// If the template contains a sequence key, it prompts the user for the start and steps,
+        /// and generates a sequence of numbers based on the provided input.
+        /// If the template contains other keys, it replaces them with values from primary data or prompts
+        /// the user for input if the key is not found in primary data.
+        /// The processed template is then set as the body of the EPL file, and the print flag is set to true.
+        /// </summary>
         public void Process(ref EplFile eplFile)
         {
             continueProcessing = true;
@@ -54,6 +73,10 @@ namespace LabelsTG.Labels
             if (template.Trim().EndsWith('P'))
             {
                 template = string.Format("{0}<pocet>{1}", template.TrimEnd(), Environment.NewLine);
+            }
+            else
+            {
+                template = string.Format("{0}{1}", template.TrimEnd(), Environment.NewLine);
             }
 
             List<string> keys = ReadKeys(template);

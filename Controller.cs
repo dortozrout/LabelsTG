@@ -13,6 +13,7 @@ namespace LabelsTG
         private string searchBuffer = "";
         public bool isSetting = false;
         private List<EplFile> currentListWievSource = [];
+        private readonly string readmeUrl = "https://github.com/dortozrout/LabelsTG?tab=readme-ov-file#readme";
         public event Action? RestartRequested;
         public event Action? PrintOneFileRequested;
 
@@ -32,7 +33,7 @@ namespace LabelsTG
             View.RestartRequested += () => RestartRequested?.Invoke();
             View.AddNewFileRequested += () => AddNewFile(true);
             Model.OnFilePrintToScreen += (body) => View.SetTextView(body);
-            View.ShowHelpRequested += () => RunExternalProcess("https://github.com/dortozrout/LabelsTG?tab=readme-ov-file#readme");
+            View.ShowHelpRequested += () => RunExternalProcess(readmeUrl);
             View.OpenInExtEditorRequested += () => OpenInExternalEditor();
 
             View.Loaded += () =>
@@ -524,6 +525,21 @@ namespace LabelsTG
                 CreateNewFile();
                 args.Handled = true;
             }
+            else if (key.Key == (Key.E | Key.CtrlMask))
+            {
+                View.textView.SetFocus();
+                args.Handled = true;
+            }
+            else if (key.Key == (Key.E | Key.CtrlMask | Key.ShiftMask))
+            {
+                OpenInExternalEditor();
+                args.Handled = true;
+            }
+            else if (key.Key == Key.F1)
+            {
+                RunExternalProcess(readmeUrl);
+                args.Handled = true;
+            }
             else if ((char.IsLetterOrDigit((char)key.KeyValue) || key.Key == Key.Space) && !isSetting)
             {
                 HandleSearchKeyPress((char)key.KeyValue);
@@ -751,6 +767,9 @@ namespace LabelsTG
                 View.ShowError($"Error running external process: {ex.Message}");
             }
         }
+        /// <summary>
+        /// Opens the selected item in an external editor or file viewer.
+        /// /// </summary>
         private void OpenInExternalEditor()
         {
             BaseItem? selectedItem = GetSelectedItem();
