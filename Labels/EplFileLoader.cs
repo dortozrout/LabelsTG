@@ -14,7 +14,7 @@ namespace LabelsTG.Labels
                 var files = Directory.GetFiles(directoryPath);
                 foreach (var file in files)
                 {
-                    string content = File.ReadAllText(file, Encoding.GetEncoding(Configuration.Encoding));
+                    string content = File.ReadAllText(file, Configuration.EplFileEncoding);
                     var eplFile = new EplFile(Path.GetFileName(file), Path.GetFullPath(file), content);
                     eplFiles.Add(eplFile);
                 }
@@ -107,7 +107,7 @@ namespace LabelsTG.Labels
                     string fileAddress = configItem.Value;
                     if (File.Exists(fileAddress))
                     {
-                        string contentFile = File.ReadAllText(fileAddress, Encoding.GetEncoding(Configuration.Encoding));
+                        string contentFile = File.ReadAllText(fileAddress, Configuration.EplFileEncoding);
                         configItem.Content = contentFile;
                         settingsFiles.Add(configItem);
                     }

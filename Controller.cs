@@ -3,6 +3,7 @@ using LabelsTG.Labels;
 using Terminal.Gui;
 using System.Diagnostics;
 using System.IO;
+using System.Text;
 
 namespace LabelsTG
 {
@@ -290,6 +291,19 @@ namespace LabelsTG
                     View.ShowError("Invalid color format.");
                 }
             }
+            else if (item is ConfigItem<System.Text.Encoding> configItemEncoding)
+            {
+                try
+                {
+                    configItemEncoding.Value = System.Text.Encoding.GetEncoding(View.textView.Text.ToString()?.Trim() ?? "utf-8");
+                    WriteConfig(Configuration.ConfigItems);
+                    View.ShowInfo("Configuration file saved successfully.");
+                }
+                catch (ArgumentException)
+                {
+                    View.ShowError("Invalid encoding format.");
+                }
+            }
             else
             {
                 View.ShowError("Unknown item type.");
@@ -438,7 +452,15 @@ namespace LabelsTG
                         lines.Add($"# {comment}");
                     }
                     string key = item.Key;
-                    string value = item.Value.ToString();
+                    string value;
+                    if (item is ConfigItem<Encoding> encodingItem)
+                    {
+                        // Use WebName for encoding
+                        value = encodingItem.Value.WebName;
+                        lines.Add($"{key}:{value}");
+                        continue;
+                    }
+                    value = item.Value.ToString();
                     lines.Add($"{key}:{value}");
                 }
                 File.WriteAllLines(configFilePath, lines);
@@ -471,6 +493,7 @@ namespace LabelsTG
                 ConfigItem<int> selectedConfigItem => selectedConfigItem.Value.ToString(),
                 ConfigItem<bool> selectedConfigItem => selectedConfigItem.Value.ToString(),
                 ConfigItem<Color> selectedConfigItem => selectedConfigItem.Value.ToString(),
+                ConfigItem<System.Text.Encoding> selectedConfigItem => selectedConfigItem.Value.WebName, // použij WebName pro zápis do configu
                 _ => ""
             });
         }

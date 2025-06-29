@@ -1,3 +1,5 @@
+using System.Text;
+
 namespace LabelsTG.Labels
 {
     public class ConfigItem<T> : BaseItem
@@ -28,6 +30,11 @@ namespace LabelsTG.Labels
 
         public override string ToString()
         {
+            if (typeof(T) == typeof(Encoding))
+            {
+                var encoding = Value as Encoding;
+                return $"{Key}: {encoding?.WebName ?? "Unknown Encoding"}";
+            }
             return $"{Key}: {Value}";
         }
     }

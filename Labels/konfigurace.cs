@@ -1,5 +1,6 @@
 using Terminal.Gui;
 using System.Runtime.InteropServices;
+using System.Text;
 
 namespace LabelsTG.Labels
 {
@@ -10,6 +11,7 @@ namespace LabelsTG.Labels
     {
         //Nazev aplikace ktery se zobrazi v hlavicce
         public const string AppName = "TG202506";
+        public static readonly Encoding DefaultEncoding = Encoding.UTF8; //default encoding for reading files
 
         //Adresa konfig souboru
         public static string ConfigFile { get; set; }
@@ -26,7 +28,12 @@ namespace LabelsTG.Labels
         //Opakovany tisk 1 souboru?
         public static bool Repeate { get; private set; }
         //Kodovani souborů
-        public static string Encoding { get; private set; } = "UTF-8"; //defaultne UTF-8, jinak windows-1250
+        private static Encoding _eplFileEncoding = SetupEncoding("UTF-8");
+        public static Encoding EplFileEncoding
+        {
+            get => _eplFileEncoding;
+            set => _eplFileEncoding = value;
+        }
         //ip adresa nebo jméno tiskárny
         public static string PrinterAddress { get; private set; } = string.Empty;
         //typ tiskarny - lokalni, sdilena nebo sitova
@@ -73,7 +80,7 @@ namespace LabelsTG.Labels
                 new ConfigItem<string>("Adresar", ConfigPath, "adresar souboru s epl prikazy", false, () => TemplatesDirectory, (value) => TemplatesDirectory = value),
                 new ConfigItem<string>("HledanyText", "", "text ktery se hleda v nazvu souboru", false, () => SearchedText, (value) => SearchedText = value),
                 new ConfigItem<bool>("JedenSoubor", "false", "jestli se ma tisknout jenom jeden soubor", false, () => PrintOneFile, (value) => PrintOneFile = value),
-                new ConfigItem<string>("Kodovani", "UTF-8", "kodovani ulozenych souboru (UTF-8 nebo windows-1250)", false, () => Encoding, (value) => Encoding = value),
+                new ConfigItem<Encoding>("Kodovani", "UTF-8", "kodovani ulozenych souboru (UTF-8 nebo windows-1250)", false, () => EplFileEncoding, (value) => EplFileEncoding = value),
                 new ConfigItem<bool>("Prihlasit", "false", "zda vyzadovat login", false, () => Login, (value) => Login = value),
                 new ConfigItem<string>("Data", "", "adresa souboru s primarnimi daty", true, () => PrimaryDataAdress, (value) => PrimaryDataAdress = value,
                 "# klíč: hodnota"),
@@ -261,6 +268,18 @@ namespace LabelsTG.Labels
                 ? parsedColor
                 : defaultColor;
         }
+        public static Encoding SetupEncoding(string encodingName)
+        {
+            try
+            {
+                return Encoding.GetEncoding(encodingName);
+            }
+            catch (ArgumentException)
+            {
+                // If the specified encoding is not valid, return the default encoding
+                return DefaultEncoding;
+            }
+        }
         public static void LoadFromContent(string content)
         {
             if (string.IsNullOrWhiteSpace(content))
@@ -292,7 +311,11 @@ namespace LabelsTG.Labels
                         object typedValue;
                         if (itemType == typeof(Terminal.Gui.Color))
                         {
-                            typedValue = Configuration.SetupColor(strValue, Terminal.Gui.Color.Green);
+                            typedValue = SetupColor(strValue, Terminal.Gui.Color.Green);
+                        }
+                        else if (itemType == typeof(Encoding))
+                        {
+                            typedValue = SetupEncoding(strValue);
                         }
                         else
                         {
