@@ -245,6 +245,11 @@ namespace LabelsTG
                 configItemColor.Value = Color.Green;
                 WriteConfig(Configuration.ConfigItems);
             }
+            else if (item is ConfigItem<System.Text.Encoding> configItemEncoding)
+            {
+                configItemEncoding.Value = Encoding.UTF8; // Reset to default encoding
+                WriteConfig(Configuration.ConfigItems);
+            }
             else
             {
                 View.ShowError("Unknown item type.");
