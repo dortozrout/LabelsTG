@@ -100,16 +100,24 @@ namespace LabelsTG
         {
             eplFile ??= GetSelectedItem() as EplFile;
             var parser = new Parser();
+
             parser.OnTemplateSave += newTemplate =>
             {
                 if (newTemplate == null || eplFile == null) return;
 
                 eplFile.Template = newTemplate;
-                Model.SaveFile(eplFile);
+                SaveAndNotify(eplFile, false);
             };
-            parser.Process(ref eplFile);
+
+            parser.InputRequested += (sender, e) =>
+            {
+                string? input = View.LaunchDialog(e.Prompt, e.DefaultValue);
+                e.Result = input ?? e.DefaultValue;
+            };
+
             if (eplFile != null)
             {
+                parser.Process(ref eplFile);
                 Model.PrintEplFile(eplFile);
             }
         }
@@ -383,16 +391,16 @@ namespace LabelsTG
         /// <summary>
         /// Saves a file or configuration item and notifies the user of the result.
         /// </summary>
-        private static void SaveAndNotify(BaseItem item)
+        private static void SaveAndNotify(BaseItem item, bool showInfo = true)
         {
-            int result = Model.SaveFile(item);
-            if (result == 0)
+            try
             {
-                View.ShowInfo("File saved successfully.");
+                Model.SaveFile(item);
+                if (showInfo) View.ShowInfo("File saved successfully.");
             }
-            else
+            catch (Exception ex)
             {
-                View.ShowError("Error saving file.");
+                View.ShowError($"Error saving file: {ex.Message}");
             }
         }
 
@@ -401,14 +409,15 @@ namespace LabelsTG
         /// </summary>
         private void DeleteAndNotify(BaseItem item)
         {
-            int result = Model.DeleteFile(item);
-            if (result == 0)
+            try
             {
+                Model.DeleteFile(item);
                 View.ShowInfo("File deleted successfully.");
             }
-            else
+            catch (Exception ex)
             {
-                View.ShowError("Error deleting file.");
+                View.ShowError($"Error deleting file: {ex.Message}");
+                return;
             }
         }
 

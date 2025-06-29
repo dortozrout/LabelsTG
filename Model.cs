@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Windows.Markup;
 using LabelsTG.Labels;
 namespace LabelsTG
@@ -73,10 +74,12 @@ namespace LabelsTG
         /// <summary>
         /// Saves the given item (ConfigItem or EplFile) to disk.
         /// </summary>
-        public static int SaveFile(BaseItem item)
+        public static void SaveFile(BaseItem item)
         {
             if (item == null || string.IsNullOrEmpty(item.Key))
             {
+                //ErrorHandler.HandleError("Model", new InvalidOperationException("Item or item key is null or empty."));
+                // return -1;
                 throw new InvalidOperationException("Item or item key is null or empty.");
             }
 
@@ -86,26 +89,31 @@ namespace LabelsTG
                 {
                     case ConfigItem<string> configItem when configItem.IsFile:
                         File.WriteAllText(configItem.Value, configItem.Content);
-                        return 0;
+                        return;
 
                     case EplFile eplFile:
                         File.WriteAllText(eplFile.FileAddress, eplFile.Template);
-                        return 0;
+                        return ;
 
                     default:
+                        //ErrorHandler.HandleError("Model", new InvalidOperationException("Unknown item type."));
+                        // return -1;
                         throw new InvalidOperationException("Unknown item type.");
                 }
             }
             catch (Exception ex)
             {
-                throw new InvalidOperationException("Error saving file: \n" + ex.Message);
+                //View.ShowError($"Error saving file: {ex.Message}");
+                //ErrorHandler.HandleError("Model", ex);
+                // return -1;
+                throw new InvalidOperationException(ex.Message);
             }
         }
 
         /// <summary>
         /// Deletes the given item (ConfigItem or EplFile) from disk and updates internal lists.
         /// </summary>
-        public int DeleteFile(BaseItem item)
+        public void DeleteFile(BaseItem item)
         {
             if (item == null || string.IsNullOrEmpty(item.Key))
             {
@@ -120,12 +128,12 @@ namespace LabelsTG
                         File.Delete(configItem.Value);
                         configItem.Value = "";
                         configItem.Content = "";
-                        return 0;
+                        return;
 
                     case EplFile eplFile:
                         File.Delete(eplFile.FileAddress);
                         EplFiles.Remove(eplFile);
-                        return 0;
+                        return;
 
                     default:
                         throw new InvalidOperationException("Unknown item type.");
@@ -133,8 +141,7 @@ namespace LabelsTG
             }
             catch (Exception ex)
             {
-                ErrorHandler.HandleError(this, ex);
-                return -1;
+                throw new InvalidOperationException(ex.Message);
             }
         }
 

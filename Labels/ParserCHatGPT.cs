@@ -1,3 +1,4 @@
+#nullable enable
 namespace LabelsTG.Labels
 {
     /// <summary>
@@ -8,10 +9,12 @@ namespace LabelsTG.Labels
     public class Parser
     {
         private readonly Dictionary<string, string> primaryData;
-        private EplFile CurrentEplFile { get; set; }
+        private EplFile? CurrentEplFile { get; set; }
         //private Model Model { get; set; }
         private bool continueProcessing;
-        public event Action<string> OnTemplateSave;
+        public event Action<string>? OnTemplateSave;
+        public event EventHandler<InputRequestEventArgs>? InputRequested;
+        //public event Func<string, string, string> OnInputRequest;
         public Parser()
         {
             // Load primary data from the specified address
@@ -82,7 +85,7 @@ namespace LabelsTG.Labels
             List<string> keys = ReadKeys(template);
 
             // Check if there's a sequence key, and handle it
-            string sequenceKey = keys.FirstOrDefault(k => k.StartsWith("<sequence|", StringComparison.OrdinalIgnoreCase));
+            string? sequenceKey = keys.FirstOrDefault(k => k.StartsWith("<sequence|", StringComparison.OrdinalIgnoreCase));
 
             if (sequenceKey != null)
             {
@@ -96,6 +99,11 @@ namespace LabelsTG.Labels
 
         private string HandleSequenceAndOtherKeys(string template, List<string> keys, string sequenceKey)
         {
+            if (CurrentEplFile == null)
+            {
+                continueProcessing = false;
+                return string.Empty;
+            }
             // Parse the sequence start and steps from the key
             var keyParts = sequenceKey.Trim('<', '>').Split('|');
             if (keyParts.Length < 3 || keyParts.Length > 5)
@@ -220,24 +228,33 @@ namespace LabelsTG.Labels
         }
         private T HandleInput<T>(EplFile eplFile, string prompt, string defaultValue)
         {
-            string input = View.LaunchDialog(prompt, defaultValue);
+            string? input = null;
+
+            if (InputRequested != null)
+            {
+                var args = new InputRequestEventArgs(prompt, defaultValue);
+                InputRequested(this, args);
+                input = args.Result;
+            }
+            // else
+            // {
+            //     input = View.LaunchDialog(prompt, defaultValue);
+            // }
+
             if (string.IsNullOrEmpty(input) || input == "0")
             {
-                // Handle the case where the user cancels the input or enters an empty string
                 continueProcessing = false;
                 eplFile.Print = false;
-                return default;
+                if (typeof(T) == typeof(string))
+                    return (T)(object)string.Empty;
+                return default!;
             }
             if (typeof(T) == typeof(int))
             {
                 if (int.TryParse(input, out int intValue))
                     return (T)(object)intValue;
                 else
-                {
-                    intValue = 0;
-                    return (T)(object)intValue;
-                }
-
+                    return (T)(object)0;
             }
             else if (typeof(T) == typeof(DateTime))
             {
@@ -256,8 +273,52 @@ namespace LabelsTG.Labels
             }
         }
 
+
+        // private T HandleInput<T>(EplFile eplFile, string prompt, string defaultValue)
+        // {
+        //     // Pokud je delegát nastaven, použij ho, jinak fallback na View.LaunchDialog
+        //     string input = InputRequestDelegate != null
+        //     ? InputRequestDelegate(prompt, defaultValue)
+        //     : View.LaunchDialog(prompt, defaultValue);
+
+        //     if (string.IsNullOrEmpty(input) || input == "0")
+        //     {
+        //     continueProcessing = false;
+        //     eplFile.Print = false;
+        //     return default;
+        //     }
+        //     if (typeof(T) == typeof(int))
+        //     {
+        //     if (int.TryParse(input, out int intValue))
+        //         return (T)(object)intValue;
+        //     else
+        //         return (T)(object)0;
+        //     }
+        //     else if (typeof(T) == typeof(DateTime))
+        //     {
+        //     if (DateTime.TryParse(input, out DateTime dateTimeValue))
+        //         return (T)(object)dateTimeValue;
+        //     else
+        //         return (T)(object)default(DateTime);
+        //     }
+        //     else if (typeof(T) == typeof(string))
+        //     {
+        //     return (T)(object)input;
+        //     }
+        //     else
+        //     {
+        //     throw new InvalidOperationException($"Unsupported type: {typeof(T)}");
+        //     }
+        // }
+
         private string HandleTimeKey(string key)
         {
+            if (CurrentEplFile == null)
+            {
+                continueProcessing = false;
+                return string.Empty;
+            }
+
             int indexOfPlus = key.IndexOf('+');
             if (indexOfPlus == -1)
                 return DateTime.Now.ToString("H:mm");
@@ -271,6 +332,12 @@ namespace LabelsTG.Labels
 
         private string HandleDateKey(string key)
         {
+            if (CurrentEplFile == null)
+            {
+                continueProcessing = false;
+                return string.Empty;
+            }
+
             // Extract the date format if specified, otherwise use the default format
             string format = key.Contains("format:", StringComparison.OrdinalIgnoreCase)
             ? key[(key.IndexOf(":") + 1)..].TrimEnd('>')
@@ -332,17 +399,28 @@ namespace LabelsTG.Labels
         }
         private DateTime GetLotExpiration(string key)
         {
-            DateTime lotExpiration;
+            if (string.IsNullOrEmpty(key) || key == "0")
+            {
+                continueProcessing = false;
+                return DateTime.MaxValue;
+            }
+            if (CurrentEplFile == null)
+            {
+                continueProcessing = false;
+                return DateTime.MaxValue;
+            }
+
             if (key == "0")
             {
                 return DateTime.MaxValue;
             }
-            if (DateTime.TryParse(key, out lotExpiration))
+            if (DateTime.TryParse(key, out DateTime lotExpiration))
             {
                 return lotExpiration;
             }
-            if (primaryData.TryGetValue(key.ToLower(), out string lotExpirationStr)
-                    && DateTime.TryParse(lotExpirationStr, out lotExpiration))
+            if (primaryData.TryGetValue(key.ToLower(), out string? lotExpirationStr)
+                && !string.IsNullOrEmpty(lotExpirationStr)
+                && DateTime.TryParse(lotExpirationStr, out lotExpiration))
             {
                 return lotExpiration;
             }
@@ -352,6 +430,11 @@ namespace LabelsTG.Labels
 
         private string HandlePocetKey(string key)
         {
+            if (CurrentEplFile == null)
+            {
+                continueProcessing = false;
+                return string.Empty;
+            }
             int quantity;
             int indexOfSeparator = key.IndexOf('|');
             // if (indexOfSeparator < 1)
@@ -369,6 +452,11 @@ namespace LabelsTG.Labels
 
         private string HandleNumberKey(string key)
         {
+            if (CurrentEplFile == null)
+            {
+                continueProcessing = false;
+                return string.Empty;
+            }
             // <number|text|format:format>
             // Example: <number|serial|format:0000>
             string[] parts = key.Trim('<', '>').Split('|');
@@ -401,6 +489,11 @@ namespace LabelsTG.Labels
         }
         private string HandleDefaultKey(string key)
         {
+            if (CurrentEplFile == null)
+            {
+                continueProcessing = false;
+                return string.Empty;
+            }
             string rv = HandleInput<string>(CurrentEplFile, "Zadej " + key.Trim('<', '>'), "");
             return rv;
         }
