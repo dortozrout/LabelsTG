@@ -1,7 +1,8 @@
-ObecnyTisk
+LabelsTG
 
 UNIVERZÁLNÍ PROGRAM NA TISK ŠTÍTKŮ
 
+Toto je verze využívající grafické rozhraní Terminal.Gui.
 Program tiskne štítky podle šablon v daném adresáři. Pomocí
 konfiguračního souboru lze nastavit různé parametry. Konfiguračních
 souborů může být několik, každý pro jednu úlohu. Výchozí konfigurační
@@ -30,12 +31,6 @@ soubory které obsahují hledanyText.
 JedenSoubor: TRUE nebo FALSE. Pokud je TRUE vytiskne se pouze jeden
 soubor.
 
-OpakovanyTisk: TRUE nebo FALSE. Souvisí s parametrem JedenSoubor. Pokud
-je TRUE, výtisk jednoho souboru se opakuje dokud uživatel neukončí
-aplikaci stisknutím CTRL+C nebo křížkem. Výtisk je omezen na 20 cyklů.
-Tato možnost slouží například pro výtisk několika štítků s ručně
-zadávanými barkódy.
-
 Kodovani: Určuje kódování uložených šablon. Zpravidla UTF-8 nebo
 windows-1250.
 
@@ -50,6 +45,10 @@ hlavniSablona: Adresa hlavní šablony, pokud se pracuje v režimu jedné
 
 hlavniSablonaData: Adresa souboru který definuje klíče a data, k hlavní
 šabloně.
+
+Logsoubor: Adresa souboru s historií tisku (záznamová kniha).
+
+Barva: Barevné ladění aplikace.
 
 Všechny parametry se píší bez uvozovek. Můžou obsahovat diakritiku a
 mezery.
@@ -71,9 +70,6 @@ Příklad konfiguračního souboru:
     # jestli se ma tisknout jenom jeden soubor
     jedenSoubor: false
 
-    # jeden soubor se tiskne opakovane
-    opakovanytisk: false
-
     # kodovani ulozenych souboru (UTF-8 nebo windows-1250)
     kodovani: UTF-8
 
@@ -88,6 +84,12 @@ Příklad konfiguračního souboru:
 
     # adresa souboru se vstupnimi daty pro tisk pomoci hlavni sablony
     hlavniSablonaData: 
+
+    # umisteni logovaciho souboru 
+    Logsoubor: 
+
+    # nastaveni barevneho zvyrazneni (gray, blue, vychozi = zelena) 
+    Barva:Cyan 
 
 Popis šablony EPL příkazu.
 
@@ -110,25 +112,26 @@ Speciální pole jsou:
 
 <time+> - zobrazí dotaz na počet minut o který se má čas posunout
 
-<date|[format:dd.MM.yyyy]> - nahradí se aktuálním datem volitelně
-lze zadat formát data.
+<date|[format:dd.MM.yyyy]> - nahradí se aktuálním datem, volitelně lze
+zadat formát data.
 
 <date+10|[format:dd.MM.yyyy]> - nahradí se datem za deset dní
 
-<date+30|expirace_sarze|[format:dd.MM.yyyy]> - nahradí se datem za 30 dní nebo datem
-definovaným textem za značkou ‘|’. Může být datum nebo klíč v souboru
-primárních dat. Pokud nerozpozná datum nebo nenajde klíč zobrazí program
-dotaz na expiraci.
+<date+30|expirace_sarze|[format:dd.MM.yyyy]> - nahradí se datem za 30
+dní nebo datem definovaným textem za značkou ‘|’. Může být datum nebo
+klíč v souboru primárních dat. Pokud nerozpozná datum nebo nenajde klíč
+zobrazí program dotaz na expiraci.
 
-<sequence|start|počet kroků|[save]|[formát]> - nahradí se číslem
+<sequence|start|počet kroků|[save]|[format:formát]> - nahradí se číslem
 definovaným parametrem start. Šablona se tiskne opakovaně (počet kroků),
 číslo se zvyšuje vždy o jedna. Nepovinný parametr “save” uloží startovní
 pozici (nelze pokud se tiskne s hlavní šablonou). Nepovinný parametr
 “formát” je text, který definuje formát čísla (např “000” - číslo má
 nejméně 3 číslice)
 
-<number|číslo|[formát]> - nahradí se číslem "číslo" případně zobrazí
-dotaz (zadej číslo). Formát čísla může být např. d6 - minimálně 6 číslic. 
+<number|číslo|[format:formát]> - nahradí se číslem “číslo” případně
+zobrazí dotaz (zadej číslo). Formát čísla může být např. d6 - minimálně
+6 číslic.
 
 <uzivatel> - pokud je vyžadována identifikace uživatele, nahradí se
 značkou uživatele.
@@ -162,6 +165,24 @@ Příklady šablon:
     I8,B
     A146,5,0,3,1,2,N,"Doplněno:"
     A146,60,0,3,1,2,N,"<date>"
+    P1
+
+Šablona na tisk štítku s číslem ve formátu yy000000 (např. 25000212):
+
+    N
+    I8,B
+    A8,16,0,4,1,1,N,"HTO TO <typ výrobku>"
+    B8,56,0,1,2,,72,B,"<date|format:yy><number|číslo|d6> <porci>"
+    A328,24,1,3,1,1,N,"<date>"
+    A366,24,1,4,1,1,N,"pH"
+    P<pocet|4>
+
+Šablona pro tisk sekvence štítků s čísly 001 až 005 a s uložením pozice
+(příště se začne od č. 006):
+
+    N
+    I8,B
+    A120,32,0,3,1,1,N,"vzorek A<sequence|1|5|save|d3>"
     P1
 
 Příklad souboru s daty:
@@ -227,9 +248,28 @@ Pokud je v konfiguračním souboru uvedena hlavní šablona, program nebude
 zobrazovat štítky v adresáři, ale pouze štítky definované v souboru
 “hlavniSablonaData”.
 
+Ovládání GUI.
+
+File (EPL Files) - New: Vytvoření nového EPL souboru v adresáři
+definovaném v config souboru (Adresar: C:\xxx\yyy). Není dostupné v
+režimu jedné šablony. - Open new file: Otevření existující EPL šablony
+(vytvoří se kopie v adresáři). - Edit: Editace šablony pomocí
+vestavěného editoru. - Edit in external editor: Editace pomocí externího
+editoru. - Save: Uložení aktuální šablony. - Delete: Vymazání vybrané
+šablony. - Print: Odeslání aktuální šablony na tiskárnu podle nastavení
+v konfiguračním souboru. - Quit: Ukončení programu.
+
+File (Settings) - New: Vytvoření nového souboru a zápis cesty do
+konfigurace. - Open new file: Otevření existujícího souboru, adresáře a
+zápis cesty do konfigurace. - Edit: Editace souboru pomocí vestavěného
+editoru. - Edit in external editor: Editace pomocí externího editoru.
+Pokud se jedná o adresář, otevře se v souborovém manažeru. - Save:
+Uložení aktuální položky. - Delete: Vymazání vybrané položky - nastavení
+na výchozí hodnotu.
+
 Poznámka na závěr:
 
 Program je k dispozici včetně zdrojových kódů v naději, že bude
 užitečný, ale bez jakýchkoli záruk.
 
-Poslední verze: https://github.com/dortozrout/ObecnyTisk
+Poslední verze: https://github.com/dortozrout/LabelsTG/releases
