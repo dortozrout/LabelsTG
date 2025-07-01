@@ -5,6 +5,10 @@ using System;
 
 namespace LabelsTG
 {
+    /// <summary>
+    /// Represents the main view of the application.
+    /// It contains the menu bar, list view, text view, and buttons for various actions.
+    /// </summary>
     public class View : Window
     {
         public event Action? NewFileRequested;
@@ -30,6 +34,13 @@ namespace LabelsTG
         private static ColorScheme? dialogColorScheme;
         private readonly ColorScheme filterColorScheme;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="View"/> class.
+        /// This constructor sets up the window with a title, color schemes, menu bar, list view,
+        /// text view, buttons, and a filter field.
+        /// It also defines the layout and behavior of the main view.
+        /// The window is designed to display and manage label templates for printing on EPL/ZPL printers.
+        /// </summary>
         public View() : base("Tisk štítků na EPL tiskárně v. " + Configuration.AppName)
         {
             // Set the colors of the window
@@ -186,6 +197,17 @@ namespace LabelsTG
             //Set the order of the views
             Add(menu, listView, filterField, label, textView, buttonPrint, buttonRestart, buttonEditSettings, buttonQuit);
         }
+        /// <summary>
+        /// Launches a dialog to get user input.
+        /// </summary>
+        /// <param name="prompt">The prompt message to display in the dialog.</param>
+        /// <param name="defaultText">The default text to pre-fill in the input field.</param>
+        /// <returns>The text entered by the user, or an empty string if the user cancels the dialog.</returns>
+        /// <remarks>
+        /// This method creates a dialog with a label, a text field for user input, and two buttons: OK and CANCEL.
+        /// The dialog will close when the user presses Enter or clicks OK, returning the text from the text field.
+        /// If the user presses ESC or clicks CANCEL, the text field will be cleared and the dialog will close, returning an empty string.
+        /// </remarks>
         public static string LaunchDialog(string prompt, string defaultText)
         {
             // Create a new dialog
@@ -246,11 +268,35 @@ namespace LabelsTG
             // Wait for the user to click the button    
             return textField.Text?.ToString() ?? string.Empty;
         }
+
+        /// <summary>
+        /// Sets the source of the list view to a list of files.
+        /// </summary>
+        /// <typeparam name="T">The type of the items in the list.</typeparam>
+        /// <param name="files">The list of files to set as the source of the list view.</param>
+        /// <remarks>
+        /// This method updates the list view with the provided list of files.
+        /// It allows the user to select a file from the list, which can then be used
+        /// for further actions such as editing or printing.
+        /// </remarks>
         public void SetListViewSource<T>(List<T> files)
         {
             listView.SetSource(files);
             //listView.SelectedItem = 0;
         }
+
+        /// <summary>
+        /// Launches a dialog to select a file from a list.
+        /// </summary>
+        /// <param name="prompt">The prompt message to display in the dialog.</param>
+        /// <param name="files">The list of files to display in the dialog.</param>
+        /// <returns>The selected file as a ConfigItem<string>, or null if no file was selected.</returns>
+        /// <remarks>
+        /// This method creates a dialog with a list view containing the provided files.
+        /// The user can select a file from the list and click the SELECT button to confirm their choice.
+        /// If the user cancels the dialog, the method returns null.
+        /// The dialog will close when the user selects a file or clicks the CANCEL button.
+        /// </remarks>
         public static ConfigItem<string>? LaunchListDialog(string prompt, List<ConfigItem<string>> files)
         {
             ConfigItem<string>? selectedFile = null;
@@ -310,10 +356,32 @@ namespace LabelsTG
             Application.Run(dialog);
             return selectedFile ?? null;
         }
+
+        /// <summary>
+        /// Sets the text of the text view.
+        /// </summary>
+        /// <param name="text">The text to set in the text view.</param>
+        /// <remarks>
+        /// This method updates the text view with the provided text.
+        /// It allows the user to view and edit the content of a selected label template.
+        /// </remarks>
         public void SetTextView(string text)
         {
             textView.Text = text;
         }
+
+        /// <summary>
+        /// Launches a dialog to save a file.
+        /// </summary>
+        /// <param name="label">The label for the save dialog.</param>
+        /// <param name="prompt">The prompt message to display in the dialog.</param>
+        /// <returns>The file path selected by the user, or null if the dialog was canceled.</returns>
+        /// <remarks>
+        /// This method creates a dialog with a save button and a text field for the file name.
+        /// The user can enter a file name and click the save button to confirm their choice.
+        /// If the user cancels the dialog, the method returns null.
+        /// The dialog will close when the user clicks the save button or cancels the dialog.
+        /// </remarks>
         public static string? LaunchSaveDialog(string label, string prompt)
         {
             // Create a new dialog
@@ -331,6 +399,21 @@ namespace LabelsTG
             }
             return dialog.FilePath.ToString();
         }
+
+        /// <summary>
+        /// Launches a dialog to open a file.
+        /// </summary>
+        /// <param name="label">The label for the open dialog.</param>
+        /// <param name="prompt">The prompt message to display in the dialog.</param>
+        /// <param name="defaultPath">The default path to start the dialog from.</param>
+        /// <param name="canChooseFiles">Whether the user can choose files or directories.</param>
+        /// <returns>The file path selected by the user, or null if the dialog was canceled.</returns>
+        /// <remarks>
+        /// This method creates a dialog with an open button and a text field for the file name.
+        /// The user can select a file or directory and click the open button to confirm their choice.
+        /// If the user cancels the dialog, the method returns null.
+        /// The dialog will close when the user clicks the open button or cancels the dialog.
+        /// </remarks>
         public static string? LaunchOpenDialog(string label, string prompt, string defaultPath = "", bool canChooseFiles = true)
         {
             // Create a new dialog
@@ -349,12 +432,25 @@ namespace LabelsTG
             }
             return dialog.FilePath.ToString();
         }
+        /// <summary>
+        /// Displays an information message in a dialog.
+        /// </summary>
+        /// <param name="message">The message to display in the dialog.</param>
         public static void ShowInfo(string message)
             => MessageBox.Query("Info", message, "OK");
 
+        /// <summary>
+        /// Displays an error message in a dialog.
+        /// </summary>
+        /// <param name="message">The error message to display in the dialog.</param>
         public static void ShowError(string message)
             => MessageBox.ErrorQuery("Error", message, "OK");
 
+        /// <summary>
+        /// Displays a confirmation dialog with a message.
+        /// </summary>
+        /// <param name="message">The message to display in the confirmation dialog.</param>
+        /// <returns>True if the user confirms, false otherwise.</returns>
         public static bool Confirm(string message)
             => MessageBox.Query("Confirm", message, "Yes", "No") == 0;
     }
