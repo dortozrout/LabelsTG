@@ -25,6 +25,11 @@ namespace LabelsTG
         public Label label;
         public TextView textView;
         public TextField filterField;
+        private readonly MenuItem ToggleSettings;
+        public string TextToggler
+        {
+            set => ToggleSettings.Title = value;
+        }
         private readonly ColorScheme baseColorScheme;
         private readonly ColorScheme menuColorScheme;
         private static ColorScheme? dialogColorScheme;
@@ -34,6 +39,7 @@ namespace LabelsTG
         {
             // Set the colors of the window
             Color usercolor = Configuration.UserDefinedColor;
+            ToggleSettings = new MenuItem("_Edit Settings", "", () => ToggleSettingsViewRequested?.Invoke());
 
             baseColorScheme = new ColorScheme()
             {
@@ -88,7 +94,9 @@ namespace LabelsTG
                 }),
                 new MenuBarItem("_Settings", new MenuItem[]
                 {
-                    new("_Edit Settings", "", () => ToggleSettingsViewRequested?.Invoke()),
+                    //dynamically change the text of the menu item
+                    ToggleSettings,
+                    //new("_Edit Settings", "", () => ToggleSettingsViewRequested?.Invoke()),
                     new("_Restart", "", () => RestartRequested?.Invoke()),
                 }),
                 new MenuBarItem("_Help", new MenuItem[]

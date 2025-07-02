@@ -146,6 +146,7 @@ namespace LabelsTG
                 View.buttonRestart.Visible = true;
                 View.buttonEditSettings.Text = "EPL files";
                 View.label.Text = "Settings file:";
+                View.TextToggler= "_EPL files";
             }
             else
             {
@@ -158,6 +159,7 @@ namespace LabelsTG
                 View.buttonRestart.Visible = false;
                 View.buttonEditSettings.Text = "Settings";
                 View.label.Text = "EPL template:";
+                View.TextToggler = "_Settings";
             }
             View.listView.SelectedItem = 0;
         }
