@@ -146,7 +146,7 @@ namespace LabelsTG
                 View.buttonRestart.Visible = true;
                 View.buttonEditSettings.Text = "EPL files";
                 View.label.Text = "Settings file:";
-                View.TextToggler= "_EPL files";
+                View.TextToggler = "_EPL files";
             }
             else
             {
@@ -467,7 +467,7 @@ namespace LabelsTG
                         lines.Add($"{key}:{value}");
                         continue;
                     }
-                    value = item.Value.ToString();
+                    value = item.Value == null ? "" : item.Value.ToString();
                     lines.Add($"{key}:{value}");
                 }
                 File.WriteAllLines(configFilePath, lines);

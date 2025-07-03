@@ -146,29 +146,6 @@ namespace LabelsTG.Labels
             {
                 string configFileContent = File.ReadAllText(configFilePath);
                 LoadFromContent(configFileContent);
-
-                // Uncomment the following lines if you want to read the config file line by line
-                // string[] configLines = File.ReadAllLines(configFilePath);
-
-                // var dict = configLines
-                //         .Where(line => !line.StartsWith("#") && !string.IsNullOrWhiteSpace(line)) // Ignore comments and empty lines
-                //         .Where(line => line.Contains(':'))
-                //         .Select(line => line.Split(':', 2))
-                //         .ToDictionary(x => x[0].Trim(), x => x[1].Trim(), StringComparer.OrdinalIgnoreCase);
-
-                // foreach (var item in Configuration.ConfigItems)
-                // {
-                //     var itemType = item.GetType().GetGenericArguments()[0];
-                //     var keyProp = item.GetType().GetProperty("Key");
-                //     var valueProp = item.GetType().GetProperty("Value");
-
-                //     var key = (string)keyProp.GetValue(item);
-                //     if (dict.TryGetValue(key, out var strValue))
-                //     {
-                //         var typedValue = Convert.ChangeType(strValue, itemType);
-                //         valueProp.SetValue(item, typedValue);
-                //     }
-                // }
             }
             catch (ArgumentException)
             {
@@ -215,15 +192,6 @@ namespace LabelsTG.Labels
             }
             return result;
         }
-        private static void UserEdit(string configFilePath)
-        {
-            // NotificationForm notification = new NotificationForm("NOVÝ KONFIGURÁK", string.Format("První spuštění programu s konfiguračním souborem:\n\n      {0}.\n\n   Konfigurační soubor bude otevřen v editoru, uprav ho podle svých potřeb.", Path.GetFullPath(configFilePath)));
-            // notification.Display();
-            // Console.ReadKey();
-            // Manager spravce = new Manager();
-            // spravce.EditConfigFile(true);
-            // spravce.Restart();
-        }
         private static void Initialize()
         {
             switch (PrinterType)
@@ -245,22 +213,6 @@ namespace LabelsTG.Labels
                     PrinterTypeByWords = "výstup na obrazovku";
                     break;
             }
-            // int align = 72;
-            // string directoryOrFilePath = string.IsNullOrEmpty(MasterTemplateAddress) ?
-            // $"Adresář se soubory:  {Path.GetFullPath(TemplatesDirectory)}" :
-            // $"Vstupní data: {Path.GetFullPath(MasterTemplateInputAddress)}";
-            // Header = string.Format("{6}{0}Konfigurační soubor: {1}"
-            //             + "Adresa tiskárny: {2}{0}"
-            //             + directoryOrFilePath.PadRight(align - 1)
-            //             + "Typ tiskárny: {3}{0}"
-            //             + "Kódování souborů: {4}"
-            //             + "{5}{0}",
-            //             Environment.NewLine, Path.Combine(ConfigPath, ConfigFile).PadRight(align - 22), PrinterAddress, PrinterTypeByWords,
-            //             Encoding.PadRight(align - 19), RuntimeInformation.FrameworkDescription, AppName);
-            //ActiveBackgroundColor = ConsoleColor.DarkGreen;
-            //ActiveBackgroundColor = SetupConsoleColor(userDefinedColorBg, ConsoleColor.DarkGreen);
-            //ActiveForegroundColor = ConsoleColor.Black;
-            //ActiveForegroundColor = SetupConsoleColor(userDefinedColorFg, ConsoleColor.Black);
         }
         public static Terminal.Gui.Color SetupColor(string color, Terminal.Gui.Color defaultColor)
         {
@@ -282,11 +234,6 @@ namespace LabelsTG.Labels
         }
         public static void LoadFromContent(string content)
         {
-            if (string.IsNullOrWhiteSpace(content))
-            {
-                throw new ArgumentException("Content cannot be null or empty.", nameof(content));
-            }
-
             try
             {
                 // Split the content into lines
@@ -316,6 +263,21 @@ namespace LabelsTG.Labels
                         else if (itemType == typeof(Encoding))
                         {
                             typedValue = SetupEncoding(strValue);
+                        }
+                        else if (itemType == typeof(bool))
+                        {
+                            typedValue = bool.TryParse(strValue, out var boolValue) && boolValue;
+                        }
+                        else if (itemType == typeof(int))
+                        {
+                            typedValue = int.TryParse(strValue, out var intValue) ? intValue : 0;
+                        }
+                        else if (itemType == typeof(string))
+                        {
+                            var defaultValueProp = item.GetType().GetProperty("DefaultValue");
+                            var defaultValue = defaultValueProp?.GetValue(item);
+                            typedValue = string.IsNullOrEmpty(strValue) ? defaultValue : strValue;
+                            //typedValue = strValue; // No conversion needed for string
                         }
                         else
                         {

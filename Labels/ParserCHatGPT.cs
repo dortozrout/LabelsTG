@@ -109,6 +109,7 @@ namespace LabelsTG.Labels
             if (keyParts.Length < 3 || keyParts.Length > 5)
             {
                 View.ShowError($"Chybný formát sekvence klíče ({sequenceKey})! Správný formát: <sequence|start|steps|[save]|[format:0000]>");
+                continueProcessing = false;
                 return string.Empty;
             }
 
