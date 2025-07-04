@@ -447,30 +447,10 @@ namespace LabelsTG
         /// </summary>
         private void WriteConfig(List<object> configs)
         {
-            string configFilePath = Path.Combine(Configuration.ConfigPath, Configuration.ConfigFile);
+            string configFilePath = Configuration.ConfigFilePath;
             try
             {
-                var lines = new List<string>();
-                foreach (dynamic item in configs)
-                {
-                    string comment = item.Description;
-                    if (!string.IsNullOrEmpty(comment))
-                    {
-                        lines.Add($"# {comment}");
-                    }
-                    string key = item.Key;
-                    string value;
-                    if (item is ConfigItem<Encoding> encodingItem)
-                    {
-                        // Use WebName for encoding
-                        value = encodingItem.Value.WebName;
-                        lines.Add($"{key}:{value}");
-                        continue;
-                    }
-                    value = item.Value == null ? "" : item.Value.ToString();
-                    lines.Add($"{key}:{value}");
-                }
-                File.WriteAllLines(configFilePath, lines);
+                Configuration.SaveConfiguration();
                 // Update the ConfigItem in the list
                 int index = View.listView.SelectedItem;
                 Model.SettingsFiles[0] = new ConfigItem<string>("ConfigFile", "", "", true, () => Path.Combine(Configuration.ConfigPath, Configuration.ConfigFile), (value) => { Configuration.ConfigFile = value; }, "", File.ReadAllText(configFilePath));
@@ -479,7 +459,7 @@ namespace LabelsTG
             }
             catch (Exception ex)
             {
-                ErrorHandler.HandleError("Configuration", ex);
+                View.ShowError($"Error writing configuration file: {ex.Message}");
             }
         }
 
