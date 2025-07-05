@@ -116,6 +116,8 @@ namespace LabelsTG
                 e.Result = input ?? e.DefaultValue;
             };
 
+            parser.OnError += View.ShowError;
+
             if (eplFile != null)
             {
                 parser.Process(ref eplFile);
