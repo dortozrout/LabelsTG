@@ -94,12 +94,9 @@ namespace LabelsTG.Labels
         }
         public static List<BaseItem> LoadSettings(List<object> configItems)
         {
-            string content = File.ReadAllText(Path.Combine(Configuration.ConfigPath, Configuration.ConfigFile));
+            string content = File.ReadAllText(Configuration.ConfigFilePath);
             var confFile = new ConfigItem<string>("ConfigFile", "", "", true, () => Path.Combine(Configuration.ConfigPath, Configuration.ConfigFile), (value) => { Configuration.ConfigFile = value; }, "", content);
-            var settingsFiles = new List<BaseItem>
-            {
-                confFile
-            };
+            var settingsFiles = new List<BaseItem> { confFile };
             foreach (var conf in configItems)
             {
                 if (conf is ConfigItem<string> configItem && configItem.IsFile)
