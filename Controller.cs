@@ -450,7 +450,11 @@ namespace LabelsTG
             string configFilePath = Path.Combine(Configuration.ConfigPath, Configuration.ConfigFile);
             try
             {
-                var lines = new List<string>();
+                var lines = new List<string>(){
+                    "# Configuration file for LabelsTG",
+                    $"# Configuration file path: {configFilePath}",
+                    $"# Last modified: {DateTime.Now:yyyy-MM-dd HH:mm:ss}",
+                };
                 foreach (dynamic item in configs)
                 {
                     string comment = item.Description;
@@ -479,7 +483,7 @@ namespace LabelsTG
             }
             catch (Exception ex)
             {
-                ErrorHandler.HandleError("Configuration", ex);
+                ErrorHandler.HandleError(this, ex);
             }
         }
 
