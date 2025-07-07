@@ -70,7 +70,7 @@ namespace LabelsTG.Labels
         //maximalni pocet stitku ktery lze vytisknout najednou
         public const int maxQuantity = 50;
 
-        public static List<object> ConfigItems { get; private set; }
+        public static List<BaseItem> ConfigItems { get; private set; }
 
         internal static readonly char[] separator = ['\r', '\n'];
 
@@ -299,7 +299,11 @@ namespace LabelsTG.Labels
         {
             try
             {
-                var lines = new List<string>();
+                var lines = new List<string>(){
+                    "# Configuration file for LabelsTG",
+                    "# Configuration file path: " + ConfigFilePath,
+                    "# Last modified: " + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
+                };
                 foreach (dynamic item in ConfigItems)
                 {
                     string comment = item.Description;
@@ -325,6 +329,15 @@ namespace LabelsTG.Labels
             {
                 throw new InvalidOperationException("Failed to save configuration.", ex);
             }
+        }
+        /// <summary>
+        /// Gets the content of a configuration file item by its key.
+        /// </summary>
+        /// <param name="key">The key of the configuration item.</param>
+        public static string GetConfigFileContent(string key)
+        {
+            var item = ConfigItems.OfType<ConfigItem<string>>().FirstOrDefault(i => i.Key.Equals(key, StringComparison.OrdinalIgnoreCase));
+            return item.Content?.ToString() ?? string.Empty;
         }
     }
 }

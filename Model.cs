@@ -25,11 +25,14 @@ namespace LabelsTG
                 EplFiles = new EplFileLoader().ReadFromFile(Configuration.MasterTemplateInputAddress, Configuration.MasterTemplateAddress, Configuration.SearchedText);
 
             // Loads settings files and prepares filtered lists for new files and files/directories.
-            SettingsFiles = EplFileLoader.LoadSettings(Configuration.ConfigItems);
+            //SettingsFiles = EplFileLoader.LoadSettings(Configuration.ConfigItems);
+            SettingsFiles = Configuration.ConfigItems;
+            // Filter settings files to find new files and directories.
             NewSettingsFiles = SettingsFiles
                 .OfType<ConfigItem<string>>()
                 .Where(configItem => configItem.IsFile && string.IsNullOrEmpty(configItem.Value))
                 .ToList();
+            // Filter settings files to find files and directories, excluding ConfigFile.    
             SettingsFilesAndDirs = SettingsFiles
                 .OfType<ConfigItem<string>>()
                 .Where(configItem => (configItem.IsFile || configItem.Key == "Adresar") && configItem.Key != "ConfigFile")
@@ -158,7 +161,7 @@ namespace LabelsTG
         /// </summary>
         public void UpdateSettingsFiles()
         {
-            SettingsFiles = EplFileLoader.LoadSettings(Configuration.ConfigItems);
+            SettingsFiles = Configuration.ConfigItems;
             NewSettingsFiles = SettingsFiles
                 .OfType<ConfigItem<string>>()
                 .Where(configItem => configItem.IsFile && string.IsNullOrEmpty(configItem.Value))

@@ -116,7 +116,7 @@ namespace LabelsTG
                 e.Result = input ?? e.DefaultValue;
             };
 
-            parser.OnError += View.ShowError;
+            parser.OnError += (message) => View.ShowError(message);
 
             if (eplFile != null)
             {
@@ -447,7 +447,7 @@ namespace LabelsTG
         /// <summary>
         /// Writes the configuration items to the configuration file.
         /// </summary>
-        private void WriteConfig(List<object> configs)
+        private void WriteConfig(List<BaseItem> configs)
         {
             string configFilePath = Configuration.ConfigFilePath;
             try

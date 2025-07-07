@@ -19,22 +19,22 @@ namespace LabelsTG.Labels
 
         public Parser()
         {
-            // Load primary data from the specified address
-            primaryData = LoadPrimaryData(Configuration.PrimaryDataAdress);
+            // Initialize primary data from the configuration file.
+            primaryData = LoadPrimaryData(Configuration.GetConfigFileContent("Data"));
         }
 
         /// <summary>
         /// Loads primary data from a file at the specified address.
         /// If the file is empty or not found, returns an empty dictionary.
         /// </summary> 
-        private Dictionary<string, string> LoadPrimaryData(string fileAddress)
+        private Dictionary<string, string> LoadPrimaryData(string fileContent)
         {
             var rv = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
-            if (string.IsNullOrEmpty(fileAddress)) return rv;
+            if (string.IsNullOrEmpty(fileContent)) return rv;
 
             try
             {
-                string[] dataArray = File.ReadAllLines(fileAddress);
+                string[] dataArray = fileContent.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
                 foreach (string line in dataArray)
                 {
                     int indexOfSeparator = line.IndexOf(':');
@@ -48,7 +48,7 @@ namespace LabelsTG.Labels
             }
             catch (Exception ex)
             {
-                OnError?.Invoke($"Error loading primary data from {fileAddress}: {ex.Message}");
+                OnError?.Invoke($"Error loading primary data from {Configuration.PrimaryDataAdress}: {ex.Message}");
             }
 
             return rv;
