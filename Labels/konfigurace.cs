@@ -19,6 +19,9 @@ namespace LabelsTG.Labels
         //Cesta ke konf. adresari
         public static readonly string ConfigPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "TiskStitku");
 
+        //Cesta ke konfig souboru
+        public static string ConfigFilePath => Path.Combine(ConfigPath, ConfigFile);
+
         //Adresář se soubory obsahujícími EPL příkazy
         public static string TemplatesDirectory { get; private set; } = ConfigPath;
         //Vyraz pro vyhledani jednoho nebo nekolika epl prikazu v adresari
@@ -171,19 +174,7 @@ namespace LabelsTG.Labels
             int result = 0;
             try
             {
-                var lines = new List<string>();
-                foreach (dynamic item in ConfigItems)
-                {
-                    string comment = item.Description;
-                    if (!string.IsNullOrEmpty(comment))
-                    {
-                        lines.Add($"# {comment}");
-                    }
-                    string key = item.Key;
-                    string def = item.DefaultValue;
-                    lines.Add($"{key}:{def}");
-                }
-                File.WriteAllLines(configFilePath, lines);
+                SaveConfiguration();
             }
             catch (Exception ex)
             {
@@ -274,10 +265,22 @@ namespace LabelsTG.Labels
                         }
                         else if (itemType == typeof(string))
                         {
+                            // For string, check if it has a DefaultValue property
                             var defaultValueProp = item.GetType().GetProperty("DefaultValue");
+                            // If it has a DefaultValue property, use it if the string value is empty
                             var defaultValue = defaultValueProp?.GetValue(item);
                             typedValue = string.IsNullOrEmpty(strValue) ? defaultValue : strValue;
-                            //typedValue = strValue; // No conversion needed for string
+                            // If the item has an IsFile property, check if it's a file path
+                            if (item.GetType().GetProperty("IsFile")?.GetValue(item) is bool isFile && isFile)
+                            {
+                                // If it's a file path, ensure it exists
+                                if (string.IsNullOrEmpty(typedValue as string) && File.Exists(typedValue as string))
+                                {
+                                    // Read the content of the file and set it to the Content property
+                                    string contentOfFile = File.ReadAllText(typedValue as string);
+                                    item.GetType().GetProperty("Content")?.SetValue(item, contentOfFile);
+                                }
+                            }
                         }
                         else
                         {
@@ -290,6 +293,37 @@ namespace LabelsTG.Labels
             catch (Exception ex)
             {
                 throw new InvalidOperationException("Failed to parse configuration content.", ex);
+            }
+        }
+        public static void SaveConfiguration()
+        {
+            try
+            {
+                var lines = new List<string>();
+                foreach (dynamic item in ConfigItems)
+                {
+                    string comment = item.Description;
+                    if (!string.IsNullOrEmpty(comment))
+                    {
+                        lines.Add($"# {comment}");
+                    }
+                    string key = item.Key;
+                    string value;
+                    if (item is ConfigItem<Encoding> encodingItem)
+                    {
+                        // Use WebName for encoding
+                        value = encodingItem.Value.WebName;
+                        lines.Add($"{key}:{value}");
+                        continue;
+                    }
+                    value = item.Value == null ? "" : item.Value.ToString();
+                    lines.Add($"{key}:{value}");
+                }
+                File.WriteAllLines(ConfigFilePath, lines);
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException("Failed to save configuration.", ex);
             }
         }
     }

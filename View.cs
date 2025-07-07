@@ -50,7 +50,7 @@ namespace LabelsTG
         {
             // Set the colors of the window
             Color usercolor = Configuration.UserDefinedColor;
-            ToggleSettings = new MenuItem("_Edit Settings", "", () => ToggleSettingsViewRequested?.Invoke());
+            ToggleSettings = new MenuItem("Edit Settings", "", () => ToggleSettingsViewRequested?.Invoke());
 
             baseColorScheme = new ColorScheme()
             {
@@ -94,26 +94,26 @@ namespace LabelsTG
             [
                 new MenuBarItem("_File", new MenuItem[]
                 {
-                    new("_New", "", () => NewFileRequested?.Invoke()),
-                    new("_Open new file", "", () => AddNewFileRequested?.Invoke()),
-                    new("_Edit", "", () => textView?.SetFocus()),
-                    new("_Edit in external editor", "", () => OpenInExtEditorRequested?.Invoke()),
-                    new("_Save", "", () => SaveFileRequested?.Invoke()),
-                    new("_Delete", "", () => DeleteFileRequested?.Invoke()),
-                    new("_Print", "", () => PrintFileRequested?.Invoke()),
-                    new("_Quit", "", () => Application.RequestStop()),
+                    new("New", "", () => NewFileRequested?.Invoke()),
+                    new("Open new file", "", () => AddNewFileRequested?.Invoke()),
+                    new("Edit", "", () => textView?.SetFocus()),
+                    new("Edit in external editor", "", () => OpenInExtEditorRequested?.Invoke()),
+                    new("Save", "", () => SaveFileRequested?.Invoke()),
+                    new("Delete", "", () => DeleteFileRequested?.Invoke()),
+                    new("Print", "", () => PrintFileRequested?.Invoke()),
+                    new("Quit", "", () => Application.RequestStop()),
                 }),
-                new MenuBarItem("_Settings", new MenuItem[]
+                new MenuBarItem("_Edit", new MenuItem[]
                 {
                     //dynamically change the text of the menu item
                     ToggleSettings,
                     //new("_Edit Settings", "", () => ToggleSettingsViewRequested?.Invoke()),
-                    new("_Restart", "", () => RestartRequested?.Invoke()),
+                    new("Restart", "", () => RestartRequested?.Invoke()),
                 }),
                 new MenuBarItem("_Help", new MenuItem[]
                 {
-                    new("_Help", "", () => ShowHelpRequested?.Invoke()),
-                    new("_About", "", () => ShowInfo("LabelsTG - Print Labels On EPL/ZPL Printer\nVersion: " + Configuration.AppName + "\nAuthor: Z.Hunal\nLicense: MIT")),
+                    new("Help", "", () => ShowHelpRequested?.Invoke()),
+                    new("About", "", () => ShowInfo("LabelsTG - Print Labels On EPL/ZPL Printer\nVersion: " + Configuration.AppName + "\nAuthor: Z.Hunal\nLicense: MIT")),
                 }),
             ])
             {
@@ -192,6 +192,7 @@ namespace LabelsTG
             buttonPrint.Clicked += () =>
             {
                 PrintFileRequested?.Invoke();
+                listView.SetFocus();
             };
             filterField = new TextField("")
             {

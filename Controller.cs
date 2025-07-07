@@ -116,6 +116,8 @@ namespace LabelsTG
                 e.Result = input ?? e.DefaultValue;
             };
 
+            parser.OnError += View.ShowError;
+
             if (eplFile != null)
             {
                 parser.Process(ref eplFile);
@@ -146,7 +148,7 @@ namespace LabelsTG
                 View.buttonRestart.Visible = true;
                 View.buttonEditSettings.Text = "EPL files";
                 View.label.Text = "Settings file:";
-                View.TextToggler = "_EPL files";
+                View.TextToggler = "EPL files";
             }
             else
             {
@@ -159,7 +161,7 @@ namespace LabelsTG
                 View.buttonRestart.Visible = false;
                 View.buttonEditSettings.Text = "Settings";
                 View.label.Text = "EPL template:";
-                View.TextToggler = "_Settings";
+                View.TextToggler = "Settings";
             }
             View.listView.SelectedItem = 0;
         }
@@ -447,34 +449,10 @@ namespace LabelsTG
         /// </summary>
         private void WriteConfig(List<object> configs)
         {
-            string configFilePath = Path.Combine(Configuration.ConfigPath, Configuration.ConfigFile);
+            string configFilePath = Configuration.ConfigFilePath;
             try
             {
-                var lines = new List<string>(){
-                    "# Configuration file for LabelsTG",
-                    $"# Configuration file path: {configFilePath}",
-                    $"# Last modified: {DateTime.Now:yyyy-MM-dd HH:mm:ss}",
-                };
-                foreach (dynamic item in configs)
-                {
-                    string comment = item.Description;
-                    if (!string.IsNullOrEmpty(comment))
-                    {
-                        lines.Add($"# {comment}");
-                    }
-                    string key = item.Key;
-                    string value;
-                    if (item is ConfigItem<Encoding> encodingItem)
-                    {
-                        // Use WebName for encoding
-                        value = encodingItem.Value.WebName;
-                        lines.Add($"{key}:{value}");
-                        continue;
-                    }
-                    value = item.Value == null ? "" : item.Value.ToString();
-                    lines.Add($"{key}:{value}");
-                }
-                File.WriteAllLines(configFilePath, lines);
+                Configuration.SaveConfiguration();
                 // Update the ConfigItem in the list
                 int index = View.listView.SelectedItem;
                 Model.SettingsFiles[0] = new ConfigItem<string>("ConfigFile", "", "", true, () => Path.Combine(Configuration.ConfigPath, Configuration.ConfigFile), (value) => { Configuration.ConfigFile = value; }, "", File.ReadAllText(configFilePath));
@@ -483,7 +461,7 @@ namespace LabelsTG
             }
             catch (Exception ex)
             {
-                ErrorHandler.HandleError(this, ex);
+                View.ShowError($"Error writing configuration file: {ex.Message}");
             }
         }
 

@@ -14,7 +14,9 @@ namespace LabelsTG.Labels
         private bool continueProcessing;
         public event Action<string>? OnTemplateSave;
         public event EventHandler<InputRequestEventArgs>? InputRequested;
-        //public event Func<string, string, string> OnInputRequest;
+        public event Action<string>? OnError;
+        public event Action<string>? ShowInfo;
+
         public Parser()
         {
             // Load primary data from the specified address
@@ -46,7 +48,7 @@ namespace LabelsTG.Labels
             }
             catch (Exception ex)
             {
-                ErrorHandler.HandleError(this, ex);
+                OnError?.Invoke($"Error loading primary data from {fileAddress}: {ex.Message}");
             }
 
             return rv;
