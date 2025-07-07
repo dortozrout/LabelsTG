@@ -265,10 +265,22 @@ namespace LabelsTG.Labels
                         }
                         else if (itemType == typeof(string))
                         {
+                            // For string, check if it has a DefaultValue property
                             var defaultValueProp = item.GetType().GetProperty("DefaultValue");
+                            // If it has a DefaultValue property, use it if the string value is empty
                             var defaultValue = defaultValueProp?.GetValue(item);
                             typedValue = string.IsNullOrEmpty(strValue) ? defaultValue : strValue;
-                            //typedValue = strValue; // No conversion needed for string
+                            // If the item has an IsFile property, check if it's a file path
+                            if (item.GetType().GetProperty("IsFile")?.GetValue(item) is bool isFile && isFile)
+                            {
+                                // If it's a file path, ensure it exists
+                                if (string.IsNullOrEmpty(typedValue as string) && File.Exists(typedValue as string))
+                                {
+                                    // Read the content of the file and set it to the Content property
+                                    string contentOfFile = File.ReadAllText(typedValue as string);
+                                    item.GetType().GetProperty("Content")?.SetValue(item, contentOfFile);
+                                }
+                            }
                         }
                         else
                         {
