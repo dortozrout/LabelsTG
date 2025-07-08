@@ -117,6 +117,7 @@ namespace LabelsTG
             };
 
             parser.OnError += (message) => View.ShowError(message);
+            parser.ShowInfo += (message) => View.ShowInfo(message);
 
             if (eplFile != null)
             {
@@ -449,7 +450,7 @@ namespace LabelsTG
         /// </summary>
         private void WriteConfig(List<BaseItem> configs)
         {
-            string configFilePath = Configuration.ConfigFilePath;
+            string configFilePath = Configuration.ConfigFile;
             try
             {
                 Configuration.SaveConfiguration();

@@ -20,7 +20,7 @@ namespace LabelsTG.Labels
         public static readonly string ConfigPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "TiskStitku");
 
         //Cesta ke konfig souboru
-        public static string ConfigFilePath => Path.Combine(ConfigPath, ConfigFile);
+        //public static string ConfigFilePath => Path.Combine(ConfigPath, ConfigFile);
 
         //Adresář se soubory obsahujícími EPL příkazy
         public static string TemplatesDirectory { get; private set; } = ConfigPath;
@@ -78,6 +78,7 @@ namespace LabelsTG.Labels
         {
             ConfigItems =
             [
+                new ConfigItem<string>("ConfigFile", "", "", true, () => ConfigFile, (value) => ConfigFile = value),
                 new ConfigItem<string>("IPTiskarny", "","IP adresa nebo jmeno tiskarny", false, () => PrinterAddress, (value) => PrinterAddress = value),
                 new ConfigItem<int>("TypTiskarny","3","typ tiskarny 0 - sdilena, 1 - mistni, 2 - sitova, 3 - výstup na obrazovku",false, () => PrinterType, (value) => PrinterType = value),
                 new ConfigItem<string>("Adresar", ConfigPath, "adresar souboru s epl prikazy", false, () => TemplatesDirectory, (value) => TemplatesDirectory = value),
@@ -107,7 +108,7 @@ namespace LabelsTG.Labels
         //metoda slouzici pro nacteni konfigurace
         public static int Load(string configFile) //jmeno konfig souboru v adresari %appdata%/TiskStitku
         {
-            ConfigFile = configFile;
+            ConfigFile = Path.Combine(ConfigPath, configFile); //nastavi cestu ke konfig souboru
             int result;
             try //pokusi se vytvorit adresar CCData v %appdata%, pokud neexistuje
             {
@@ -118,18 +119,18 @@ namespace LabelsTG.Labels
             {
                 ErrorHandler.HandleError("Konfigurace", ex);
             }
-            string fullPath = Path.Combine(ConfigPath, configFile);
+            //string fullPath = Path.Combine(ConfigPath, configFile);
 
-            if (File.Exists(fullPath)) //pokud konfig soubor existuje
+            if (File.Exists(ConfigFile)) //pokud konfig soubor existuje
             {
-                result = LoadConfigFile(fullPath); //nacte ho
+                result = LoadConfigFile(ConfigFile); //nacte ho
             }
             else //pokud konfig soubor neexituje, vytvori novy
             {
-                result = CreateDefaultConfigFile(fullPath);
+                result = CreateDefaultConfigFile(ConfigFile);
                 if (result == 0)
                 {
-                    result = LoadConfigFile(fullPath);
+                    result = LoadConfigFile(ConfigFile); //a nacte ho
                 }
             }
             Initialize();
@@ -235,7 +236,8 @@ namespace LabelsTG.Labels
                     .Where(line => !line.StartsWith('#') && line.Contains(':')) // Ignore comments and invalid lines
                     .Select(line => line.Split(':', 2)) // Split into key and value
                     .ToDictionary(x => x[0].Trim(), x => x[1].Trim(), StringComparer.OrdinalIgnoreCase);
-
+                if (!dict.ContainsKey("ConfigFile"))
+                    dict.Add("ConfigFile", ConfigFile);
                 // Update the configuration items
                 foreach (var item in ConfigItems)
                 {
@@ -274,7 +276,7 @@ namespace LabelsTG.Labels
                             if (item.GetType().GetProperty("IsFile")?.GetValue(item) is bool isFile && isFile)
                             {
                                 // If it's a file path, ensure it exists
-                                if (string.IsNullOrEmpty(typedValue as string) && File.Exists(typedValue as string))
+                                if (!string.IsNullOrEmpty(typedValue as string) && File.Exists(typedValue as string))
                                 {
                                     // Read the content of the file and set it to the Content property
                                     string contentOfFile = File.ReadAllText(typedValue as string);
@@ -301,8 +303,8 @@ namespace LabelsTG.Labels
             {
                 var lines = new List<string>(){
                     "# Configuration file for LabelsTG",
-                    "# Configuration file path: " + ConfigFilePath,
-                    "# Last modified: " + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
+                    "# Configuration file path: " + ConfigFile,
+                    "# Last modified: " + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + Environment.NewLine,
                 };
                 foreach (dynamic item in ConfigItems)
                 {
@@ -312,6 +314,11 @@ namespace LabelsTG.Labels
                         lines.Add($"# {comment}");
                     }
                     string key = item.Key;
+                    if (key == "ConfigFile")
+                    {
+                        // Skip ConfigFile key as it is not saved in the file
+                        continue;
+                    }
                     string value;
                     if (item is ConfigItem<Encoding> encodingItem)
                     {
@@ -323,7 +330,7 @@ namespace LabelsTG.Labels
                     value = item.Value == null ? "" : item.Value.ToString();
                     lines.Add($"{key}:{value}");
                 }
-                File.WriteAllLines(ConfigFilePath, lines);
+                File.WriteAllLines(ConfigFile, lines);
             }
             catch (Exception ex)
             {

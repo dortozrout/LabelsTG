@@ -92,33 +92,33 @@ namespace LabelsTG.Labels
                                           .ToArray();
             return resultArray;
         }
-        public static List<BaseItem> LoadSettings(List<object> configItems)
-        {
-            string content = File.ReadAllText(Configuration.ConfigFilePath);
-            var confFile = new ConfigItem<string>("ConfigFile", "", "", true, () => Path.Combine(Configuration.ConfigPath, Configuration.ConfigFile), (value) => { Configuration.ConfigFile = value; }, "", content);
-            var settingsFiles = new List<BaseItem> { confFile };
-            foreach (var conf in configItems)
-            {
-                if (conf is ConfigItem<string> configItem && configItem.IsFile)
-                {
-                    string fileAddress = configItem.Value;
-                    if (File.Exists(fileAddress))
-                    {
-                        string contentFile = File.ReadAllText(fileAddress, Configuration.EplFileEncoding);
-                        configItem.Content = contentFile;
-                        settingsFiles.Add(configItem);
-                    }
-                    else
-                    {
-                        settingsFiles.Add(configItem);
-                    }
-                }
-                else
-                {
-                    settingsFiles.Add(conf as BaseItem);
-                }
-            }
-            return settingsFiles;
-        }
+        // public static List<BaseItem> LoadSettings(List<object> configItems)
+        // {
+        //     string content = File.ReadAllText(Configuration.ConfigFile);
+        //     var confFile = new ConfigItem<string>("ConfigFile", "", "", true, () => Path.Combine(Configuration.ConfigPath, Configuration.ConfigFile), (value) => { Configuration.ConfigFile = value; }, "", content);
+        //     var settingsFiles = new List<BaseItem> { confFile };
+        //     foreach (var conf in configItems)
+        //     {
+        //         if (conf is ConfigItem<string> configItem && configItem.IsFile)
+        //         {
+        //             string fileAddress = configItem.Value;
+        //             if (File.Exists(fileAddress))
+        //             {
+        //                 string contentFile = File.ReadAllText(fileAddress, Configuration.EplFileEncoding);
+        //                 configItem.Content = contentFile;
+        //                 settingsFiles.Add(configItem);
+        //             }
+        //             else
+        //             {
+        //                 settingsFiles.Add(configItem);
+        //             }
+        //         }
+        //         else
+        //         {
+        //             settingsFiles.Add(conf as BaseItem);
+        //         }
+        //     }
+        //     return settingsFiles;
+        // }
     }
 }

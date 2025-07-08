@@ -110,7 +110,8 @@ namespace LabelsTG.Labels
             var keyParts = sequenceKey.Trim('<', '>').Split('|');
             if (keyParts.Length < 3 || keyParts.Length > 5)
             {
-                View.ShowError($"Chybný formát sekvence klíče ({sequenceKey})! Správný formát: <sequence|start|steps|[save]|[format:0000]>");
+                OnError?.Invoke($"Chybný formát sekvence klíče ({sequenceKey})! Správný formát: <sequence|start|steps|[save]|[format:0000]>");
+                //View.ShowError($"Chybný formát sekvence klíče ({sequenceKey})! Správný formát: <sequence|start|steps|[save]|[format:0000]>");
                 continueProcessing = false;
                 return string.Empty;
             }
@@ -379,7 +380,8 @@ namespace LabelsTG.Labels
                     // Check if the lot expiration date is in the past
                     if (lotExpiration < DateTime.Today)
                     {
-                        View.ShowInfo($"Datum expirace materiálu ({lotExpiration:dd.MM.yyyy}) je v minulosti. Štítky nebudou vytištěny! Zkontroluj případně uprav expiraci...");
+                        ShowInfo?.Invoke($"Datum expirace materiálu ({lotExpiration:dd.MM.yyyy}) je v minulosti. Štítky nebudou vytištěny! Zkontroluj případně uprav expiraci...");
+                        //View.ShowInfo($"Datum expirace materiálu ({lotExpiration:dd.MM.yyyy}) je v minulosti. Štítky nebudou vytištěny! Zkontroluj případně uprav expiraci...");
                         continueProcessing = false;
                         CurrentEplFile.Print = false;
                         return string.Empty;
@@ -388,7 +390,8 @@ namespace LabelsTG.Labels
                     // Warn if the lot expiration date is within one month
                     if (lotExpiration < DateTime.Today.AddMonths(1))
                     {
-                        View.ShowInfo($"Datum expirace materiálu ({lotExpiration:dd.MM.yyyy}) je menší než 1 měsíc. Zkontroluj případně uprav expiraci...");
+                        ShowInfo?.Invoke($"Datum expirace materiálu ({lotExpiration:dd.MM.yyyy}) je menší než 1 měsíc. Zkontroluj případně uprav expiraci...");
+                        //View.ShowInfo($"Datum expirace materiálu ({lotExpiration:dd.MM.yyyy}) je menší než 1 měsíc. Zkontroluj případně uprav expiraci...");
                     }
 
                     // Return the earlier of the bottle expiration and lot expiration dates
@@ -465,7 +468,8 @@ namespace LabelsTG.Labels
             string[] parts = key.Trim('<', '>').Split('|');
             if (parts.Length < 2)
             {
-                View.ShowError($"Wrong key format ({key})! Check the key format and try again.");
+                OnError?.Invoke($"Chybný formát klíče ({key})! Zkontroluj formát klíče a zkus to znovu.");
+                // View.ShowError($"Wrong key format ({key})! Check the key format and try again.");
                 return string.Empty;
             }
 
