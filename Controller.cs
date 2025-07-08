@@ -238,22 +238,22 @@ namespace LabelsTG
             else if (item is ConfigItem<int> configItemInt)
             {
                 configItemInt.Value = int.TryParse(configItemInt.DefaultValue, out var value) ? value : 0;
-                WriteConfig(Configuration.ConfigItems);
+                WriteConfig();
             }
             else if (item is ConfigItem<bool> configItemBool)
             {
                 configItemBool.Value = false;
-                WriteConfig(Configuration.ConfigItems);
+                WriteConfig();
             }
             else if (item is ConfigItem<Color> configItemColor)
             {
                 configItemColor.Value = Color.Green;
-                WriteConfig(Configuration.ConfigItems);
+                WriteConfig();
             }
             else if (item is ConfigItem<System.Text.Encoding> configItemEncoding)
             {
                 configItemEncoding.Value = Encoding.UTF8; // Reset to default encoding
-                WriteConfig(Configuration.ConfigItems);
+                WriteConfig();
             }
             else
             {
@@ -281,19 +281,19 @@ namespace LabelsTG
             else if (item is ConfigItem<int> configItemInt)
             {
                 configItemInt.Value = int.TryParse(View.textView.Text.ToString(), out var value) ? value : 0;
-                WriteConfig(Configuration.ConfigItems);
+                WriteConfig();
             }
             else if (item is ConfigItem<bool> configItemBool)
             {
                 configItemBool.Value = bool.TryParse(View.textView.Text.ToString(), out var value) && value;
-                WriteConfig(Configuration.ConfigItems);
+                WriteConfig();
             }
             else if (item is ConfigItem<Color> configItemColor)
             {
                 if (Enum.TryParse(View.textView.Text.ToString(), out Color color))
                 {
                     configItemColor.Value = color;
-                    WriteConfig(Configuration.ConfigItems);
+                    WriteConfig();
                     View.ShowInfo("Configuration file saved successfully.");
                 }
                 else
@@ -306,7 +306,7 @@ namespace LabelsTG
                 try
                 {
                     configItemEncoding.Value = System.Text.Encoding.GetEncoding(View.textView.Text.ToString()?.Trim() ?? "utf-8");
-                    WriteConfig(Configuration.ConfigItems);
+                    WriteConfig();
                     View.ShowInfo("Configuration file saved successfully.");
                 }
                 catch (ArgumentException)
@@ -343,13 +343,13 @@ namespace LabelsTG
                     DeleteAndNotify(configItem);
                     configItem.Value = "";
                     configItem.Content = "";
-                    WriteConfig(Configuration.ConfigItems);
+                    WriteConfig();
                 }
             }
             else
             {
                 configItem.Value = configItem.DefaultValue;
-                WriteConfig(Configuration.ConfigItems);
+                WriteConfig();
             }
         }
 
@@ -374,7 +374,7 @@ namespace LabelsTG
                         View.SetListViewSource(Model.GetSettingsFiles());
 
                         // Write updated configuration to the file
-                        WriteConfig(Configuration.ConfigItems);
+                        WriteConfig();
                         View.ShowInfo("Configuration file saved and reloaded successfully.");
                     }
                     catch (Exception ex)
@@ -402,12 +402,12 @@ namespace LabelsTG
                 }
 
                 SaveAndNotify(configItem);
-                WriteConfig(Configuration.ConfigItems);
+                WriteConfig();
             }
             else
             {
                 configItem.Value = View.textView.Text?.ToString()?.Trim() ?? string.Empty;
-                WriteConfig(Configuration.ConfigItems);
+                WriteConfig();
                 View.ShowInfo("Configuration value saved successfully.");
             }
         }
@@ -448,7 +448,7 @@ namespace LabelsTG
         /// <summary>
         /// Writes the configuration items to the configuration file.
         /// </summary>
-        private void WriteConfig(List<BaseItem> configs)
+        private void WriteConfig()
         {
             string configFilePath = Configuration.ConfigFile;
             try
@@ -695,7 +695,7 @@ namespace LabelsTG
                 string content = File.ReadAllText(filePath);
                 configItem.Value = filePath;
                 configItem.Content = content;
-                WriteConfig(Configuration.ConfigItems);
+                WriteConfig();
                 Model.UpdateSettingsFiles();
                 View.SetListViewSource(Model.GetSettingsFiles());
                 View.listView.SelectedItem = Model.SettingsFiles.FindIndex(file => file.Key == configItem.Key);
@@ -734,7 +734,7 @@ namespace LabelsTG
             {
                 templatesDir.Value = directory;
             }
-            WriteConfig(Configuration.ConfigItems);
+            WriteConfig();
         }
 
         /// <summary>
