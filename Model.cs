@@ -11,19 +11,31 @@ namespace LabelsTG
         public List<ConfigItem<string>> SettingsFilesAndDirs { get; set; }
         public EplFile SelectedEplFile { get; set; }
         public event Action<string> OnFilePrintToScreen;
+        public event Action<string> OnError;
 
         public Model()
         {
-            // Loads EPL files from directory or from a master template file, depending on configuration.
-            if (string.IsNullOrEmpty(Configuration.MasterTemplateAddress))
+            try
             {
-                EplFiles = Configuration.SearchedText == "" ?
-                   new EplFileLoader().LoadFiles(Configuration.TemplatesDirectory) :
-                   new EplFileLoader().LoadFiles(Configuration.TemplatesDirectory, Configuration.SearchedText);
+                // Loads EPL files from directory or from a master template file, depending on configuration.
+                if (string.IsNullOrEmpty(Configuration.MasterTemplateAddress))
+                {
+                    EplFiles = Configuration.SearchedText == "" ?
+                       EplFileLoader.LoadFiles(Configuration.TemplatesDirectory) :
+                       EplFileLoader.LoadFiles(Configuration.TemplatesDirectory, Configuration.SearchedText);
+                }
+                else // Loads from file defined in Configuration.MasterTemplateInputAddress
+                {
+                    string masterTemplate = Configuration.GetConfigFileContent("HlavniSablona");
+                    string masterTemplateInput = Configuration.GetConfigFileContent("HlavniSablonaData");
+                    //EplFiles = new EplFileLoader().ReadFromFile(Configuration.MasterTemplateInputAddress, Configuration.MasterTemplateAddress, Configuration.SearchedText);
+                    EplFiles = EplFileLoader.ReadFromFile(masterTemplateInput, masterTemplate, Configuration.SearchedText);
+                }
             }
-            else // Loads from file defined in Configuration.MasterTemplateInputAddress
-                EplFiles = new EplFileLoader().ReadFromFile(Configuration.MasterTemplateInputAddress, Configuration.MasterTemplateAddress, Configuration.SearchedText);
-
+            catch (Exception ex)
+            {
+                OnError?.Invoke(ex.Message);
+            }
             // Loads settings files and prepares filtered lists for new files and files/directories.
             //SettingsFiles = EplFileLoader.LoadSettings(Configuration.ConfigItems);
             SettingsFiles = Configuration.ConfigItems;

@@ -186,7 +186,14 @@ namespace LabelsTG.Labels
 
             while (start != -1 && end != -1)
             {
-                if (end < start) ErrorHandler.HandleError(this, new ArgumentOutOfRangeException("Invalid template format: '>' found before '<'."));
+                if (end < start)
+                {
+                    OnError?.Invoke("Invalid template format: '>' found before '<'.");
+                    continueProcessing = false;
+                    CurrentEplFile!.Print = false;
+                    return rv;
+                    //ErrorHandler.HandleError(this, new ArgumentOutOfRangeException("Invalid template format: '>' found before '<'."));
+                }
                 string key = template.Substring(start, end - start + 1);
                 rv.Add(key);
                 start = template.IndexOf('<', end + 1);

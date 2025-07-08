@@ -5,7 +5,7 @@ namespace LabelsTG.Labels
 {
     public class EplFileLoader
     {
-        public List<EplFile> LoadFiles(string directoryPath, string filter = null)
+        public static List<EplFile> LoadFiles(string directoryPath, string filter = null)
         {
             var eplFiles = new List<EplFile>();
 
@@ -21,7 +21,8 @@ namespace LabelsTG.Labels
             }
             catch (Exception ex)
             {
-                ErrorHandler.HandleError(this, ex);
+                throw new Exception($"Error loading EPL files from directory '{directoryPath}': {ex.Message}", ex);
+                // ErrorHandler.HandleError(this, ex);
             }
             if (filter != null)
             {
@@ -29,20 +30,70 @@ namespace LabelsTG.Labels
             }
             return eplFiles;
         }
-        public List<EplFile> ReadFromFile(string filePath, string templatePath, string searchedText = "")
+        // public List<EplFile> ReadFromFile(string filePath, string templatePath, string searchedText = "")
+        // {
+        //     if (string.IsNullOrEmpty(filePath) || string.IsNullOrEmpty(templatePath))
+        //     {
+        //         return [];
+        //     }
+        //     var eplFiles = new List<EplFile>();
+        //     try
+        //     {
+        //         var fileLines = File.ReadAllLines(filePath);
+        //         string template = File.ReadAllText(templatePath);
+        //         //List<string> keys;
+        //         string[] keys = [];
+        //         string[] values;
+        //         foreach (string line in fileLines)
+        //         {
+        //             if (!line.StartsWith(';') && !line.StartsWith('─') && !line.StartsWith('#') && line != string.Empty)
+        //             {
+        //                 if (line.StartsWith("keys"))
+        //                 {
+        //                     int indexOfSeparator = line.IndexOf(':');
+        //                     keys = Split(line[(indexOfSeparator + 1)..].Trim());
+        //                 }
+        //                 else
+        //                 {
+        //                     // values = line.Trim().Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+        //                     values = Split(line);
+        //                     if (keys.Length == values.Length)
+        //                     {
+        //                         string templateCopy = template;
+        //                         //Dictionary<string, string> keyValuePairs = new Dictionary<string, string>();
+        //                         for (int i = 0; i < keys.Length; i++)
+        //                         {
+        //                             templateCopy = templateCopy.Replace(keys[i], values[i]);
+        //                             //keyValuePairs.Add(keys[i], values[i]);
+        //                         }
+        //                         eplFiles.Add(new EplFile(values[0], "", templateCopy));
+        //                     }
+        //                 }
+        //             }
+        //         }
+        //     }
+        //     catch (Exception ex)
+        //     {
+        //         throw new Exception($"Error reading data for master template file '{filePath}': {ex.Message}", ex);
+        //         //ErrorHandler.HandleError(this, ex);
+        //     }
+        //     if (!string.IsNullOrWhiteSpace(searchedText)) return eplFiles.FindAll(epl => epl.Key.Contains(searchedText, StringComparison.CurrentCultureIgnoreCase));
+        //     return eplFiles;
+        // }
+        public static List<EplFile> ReadFromFile(string dataForMasterTemplate, string masterTemplate, string searchedText = "")
         {
-            if (string.IsNullOrEmpty(filePath) || string.IsNullOrEmpty(templatePath))
+            if (string.IsNullOrEmpty(dataForMasterTemplate) || string.IsNullOrEmpty(masterTemplate))
             {
                 return [];
             }
             var eplFiles = new List<EplFile>();
             try
             {
-                var fileLines = File.ReadAllLines(filePath);
-                string template = File.ReadAllText(templatePath);
-                //List<string> keys;
+                var fileLines = dataForMasterTemplate.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries)   ;
+
                 string[] keys = [];
                 string[] values;
+
                 foreach (string line in fileLines)
                 {
                     if (!line.StartsWith(';') && !line.StartsWith('─') && !line.StartsWith('#') && line != string.Empty)
@@ -58,7 +109,7 @@ namespace LabelsTG.Labels
                             values = Split(line);
                             if (keys.Length == values.Length)
                             {
-                                string templateCopy = template;
+                                string templateCopy = masterTemplate;
                                 //Dictionary<string, string> keyValuePairs = new Dictionary<string, string>();
                                 for (int i = 0; i < keys.Length; i++)
                                 {
@@ -73,7 +124,8 @@ namespace LabelsTG.Labels
             }
             catch (Exception ex)
             {
-                ErrorHandler.HandleError(this, ex);
+                throw new Exception($"Error reading data for master template: {ex.Message}", ex);
+                //ErrorHandler.HandleError(this, ex);
             }
             if (!string.IsNullOrWhiteSpace(searchedText)) return eplFiles.FindAll(epl => epl.Key.Contains(searchedText, StringComparison.CurrentCultureIgnoreCase));
             return eplFiles;

@@ -53,6 +53,7 @@ namespace LabelsTG
             {
                 HandleKeyPress(args);
             };
+            Model.OnError += View.ShowError;
         }
 
         /// <summary>
