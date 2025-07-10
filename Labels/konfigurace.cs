@@ -279,8 +279,18 @@ namespace LabelsTG.Labels
                                 if (!string.IsNullOrEmpty(typedValue as string) && File.Exists(typedValue as string))
                                 {
                                     // Read the content of the file and set it to the Content property
-                                    string contentOfFile = File.ReadAllText(typedValue as string);
-                                    item.GetType().GetProperty("Content")?.SetValue(item, contentOfFile);
+                                    try
+                                    {
+                                        string contentOfFile = File.ReadAllText(typedValue as string);
+                                        item.GetType().GetProperty("Content")?.SetValue(item, contentOfFile);
+                                    }
+                                    catch 
+                                    {
+                                        // If reading the file fails, log an error and continue
+                                        // Je nutné upravit Log.Write metodu pro správné logování a cestu
+                                        Log.Write($"Error reading file: {typedValue}");
+                                        continue;
+                                    }
                                 }
                             }
                         }
