@@ -5,7 +5,7 @@ namespace LabelsTG.Labels
 {
     static class ErrorHandler
     {
-        public static void HandleError(object sourceOfEx, Exception exception)
+        public static void HandleError(Exception exception)
         {
             var stackTrace = new StackTrace();
             var stackFrame = stackTrace.GetFrame(1); // Get the caller frame

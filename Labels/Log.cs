@@ -4,9 +4,20 @@ namespace LabelsTG.Labels
 {
     public static class Log
     {
-        public static void Write(string message, string path = "log.txt")
+        static readonly string defaultPath = Path.Combine(Configuration.ConfigPath, "log.txt");
+        public static event Action<string> OnError;
+        public static void Write(string message, string path = null, bool parse = true)
         {
-            message = Parse(message);
+            if (string.IsNullOrEmpty(message))
+            {
+                return; // Do not log empty messages
+            }
+            if (parse) message = Parse(message);
+
+            if (string.IsNullOrEmpty(path))
+            {
+                path = defaultPath;
+            }
             try
             {
                 using (StreamWriter sw = new StreamWriter(path, true))
@@ -16,7 +27,9 @@ namespace LabelsTG.Labels
             }
             catch (Exception ex)
             {
-                ErrorHandler.HandleError("Log", ex);
+                // Handle the error by invoking the OnError event
+                OnError?.Invoke($"Error writing to log file: {ex.Message}");
+                //ErrorHandler.HandleError("Log", ex);
             }
         }
         private static string Parse(string eplBody)

@@ -54,6 +54,8 @@ namespace LabelsTG
                 HandleKeyPress(args);
             };
             Model.OnError += View.ShowError;
+            Log.OnError += View.ShowError;
+            Printer.OnPrintError += View.ShowError;
         }
 
         /// <summary>

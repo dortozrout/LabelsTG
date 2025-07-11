@@ -117,7 +117,7 @@ namespace LabelsTG.Labels
             }
             catch (Exception ex)
             {
-                ErrorHandler.HandleError("Konfigurace", ex);
+                ErrorHandler.HandleError(ex);
             }
             //string fullPath = Path.Combine(ConfigPath, configFile);
 
@@ -153,12 +153,12 @@ namespace LabelsTG.Labels
             }
             catch (ArgumentException)
             {
-                ErrorHandler.HandleError("Configuration", new ArgumentException("Zkontroluj nastaveni adresare v konfig souboru!"));
+                ErrorHandler.HandleError(new ArgumentException("Zkontroluj nastaveni adresare v konfig souboru!"));
                 result = 1;
             }
             catch (Exception ex)
             {
-                ErrorHandler.HandleError("Configuration", ex);
+                ErrorHandler.HandleError(ex);
                 result = 1;
             }
 
@@ -179,7 +179,7 @@ namespace LabelsTG.Labels
             }
             catch (Exception ex)
             {
-                ErrorHandler.HandleError("Configuration", ex);
+                ErrorHandler.HandleError(ex);
                 result = 1;
             }
             return result;
@@ -287,8 +287,7 @@ namespace LabelsTG.Labels
                                     catch
                                     {
                                         // If reading the file fails, log an error and continue
-                                        // Je nutné upravit Log.Write metodu pro správné logování a cestu
-                                        Log.Write($"Error reading file: {typedValue}");
+                                        Log.Write($"Error reading file: {typedValue}", LogFile, parse: false);
                                         continue;
                                     }
                                 }

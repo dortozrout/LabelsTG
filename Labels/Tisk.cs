@@ -1,5 +1,4 @@
 using Microsoft.Win32.SafeHandles;//musi byt na zacatku
-// using Form;
 using System.Text;
 using System.Runtime.InteropServices;
 using System.Net.Sockets;
@@ -8,20 +7,23 @@ namespace LabelsTG.Labels
 {
     public static class Printer
     {
+        public static event Action<string> OnPrintError;
         public static void PrintLabel(string telo)
         {
-            if (Configuration.PrinterType == 0)
-                SharedPrinter.Print(Configuration.PrinterAddress, telo);
-            if (Configuration.PrinterType == 1)
-                LocalPrinter.SendStringToPrinter(Configuration.PrinterAddress, telo);
-            if (Configuration.PrinterType == 2)
-                IpPrinter.Print(Configuration.PrinterAddress, telo);
-            // if (Configuration.PrinterType == 3)
-            // {
-            //     NotificationForm notification = new NotificationForm("", telo);
-            //     notification.Display();
-            //     Console.ReadKey();
-            // }
+            try
+            {
+                if (Configuration.PrinterType == 0)
+                    SharedPrinter.Print(Configuration.PrinterAddress, telo);
+                if (Configuration.PrinterType == 1)
+                    LocalPrinter.SendStringToPrinter(Configuration.PrinterAddress, telo);
+                if (Configuration.PrinterType == 2)
+                    IpPrinter.Print(Configuration.PrinterAddress, telo);
+            }
+            catch (Exception ex)
+            {
+                // Handle the error by invoking the OnPrintError event
+                OnPrintError?.Invoke($"Error printing label: {ex.Message}");
+            }
         }
         private static class SharedPrinter
         {
@@ -42,8 +44,8 @@ namespace LabelsTG.Labels
                 }
                 catch (Exception ex)
                 {
-                    ErrorHandler.HandleError("SharedPrinter", ex);
-                    IsConnected = false;
+                    throw new Exception($"Tisk na sdílenou tiskárnu se nezdařil: {ex.Message}", ex);
+                    //ErrorHandler.HandleError("SharedPrinter", ex);
                 }
                 return IsConnected;
             }
@@ -115,7 +117,8 @@ namespace LabelsTG.Labels
                 if (bSuccess == false)
                 {
                     dwError = Marshal.GetLastWin32Error();
-                    ErrorHandler.HandleError("LocalPrinter", new Exception($"Tisk na mistní tiskárně se nezdařil, kód chyby: {dwError}"));
+                    throw new Exception($"Tisk na místní tiskárně se nezdařil, kód chyby: {dwError}");
+                    //ErrorHandler.HandleError("LocalPrinter", new Exception($"Tisk na mistní tiskárně se nezdařil, kód chyby: {dwError}"));
                 }
                 return bSuccess;
             }
@@ -188,9 +191,7 @@ namespace LabelsTG.Labels
                 }
                 catch (Exception ex)
                 {
-                    // Catch Exception
-                    ErrorHandler.HandleError("IpPrinter", ex);
-                    return 1;
+                    throw new Exception($"Tisk na IP tiskárnu se nezdařil: {ex.Message}", ex);
                 }
             }
         }
