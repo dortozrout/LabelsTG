@@ -10,7 +10,7 @@ namespace LabelsTG.Labels
     class Configuration
     {
         //Nazev aplikace ktery se zobrazi v hlavicce
-        public const string AppName = "TG202506";
+        public const string AppName = "TG202507";
         public static readonly Encoding DefaultEncoding = Encoding.UTF8; //default encoding for reading files
 
         //Adresa konfig souboru
