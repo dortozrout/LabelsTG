@@ -284,7 +284,7 @@ namespace LabelsTG.Labels
                                         string contentOfFile = File.ReadAllText(typedValue as string);
                                         item.GetType().GetProperty("Content")?.SetValue(item, contentOfFile);
                                     }
-                                    catch 
+                                    catch
                                     {
                                         // If reading the file fails, log an error and continue
                                         // Je nutné upravit Log.Write metodu pro správné logování a cestu
@@ -341,6 +341,8 @@ namespace LabelsTG.Labels
                     lines.Add($"{key}:{value}");
                 }
                 File.WriteAllLines(ConfigFile, lines);
+                string content = string.Join(Environment.NewLine, lines);
+                SetConfigFileContent("ConfigFile", content);
             }
             catch (Exception ex)
             {
@@ -355,6 +357,18 @@ namespace LabelsTG.Labels
         {
             var item = ConfigItems.OfType<ConfigItem<string>>().FirstOrDefault(i => i.Key.Equals(key, StringComparison.OrdinalIgnoreCase));
             return item.Content?.ToString() ?? string.Empty;
+        }
+        /// <summary>
+        /// Sets the content of a configuration file item by its key.
+        /// </summary>
+        /// <param name="key">The key of the configuration item.</param>
+        public static void SetConfigFileContent(string key, string content)
+        {
+            var item = ConfigItems.OfType<ConfigItem<string>>().FirstOrDefault(i => i.Key.Equals(key, StringComparison.OrdinalIgnoreCase));
+            if (item != null)
+            {
+                item.Content = content;
+            }
         }
     }
 }

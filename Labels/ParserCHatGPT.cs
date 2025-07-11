@@ -387,7 +387,7 @@ namespace LabelsTG.Labels
                     // Check if the lot expiration date is in the past
                     if (lotExpiration < DateTime.Today)
                     {
-                        ShowInfo?.Invoke($"Datum expirace materiálu ({lotExpiration:dd.MM.yyyy}) je v minulosti. Štítky nebudou vytištěny! Zkontroluj případně uprav expiraci...");
+                        ShowInfo?.Invoke($"Datum expirace materiálu ({lotExpiration:dd.MM.yyyy}) je v minulosti.\nŠtítky nebudou vytištěny!\nZkontroluj případně uprav expiraci...");
                         //View.ShowInfo($"Datum expirace materiálu ({lotExpiration:dd.MM.yyyy}) je v minulosti. Štítky nebudou vytištěny! Zkontroluj případně uprav expiraci...");
                         continueProcessing = false;
                         CurrentEplFile.Print = false;
@@ -397,7 +397,7 @@ namespace LabelsTG.Labels
                     // Warn if the lot expiration date is within one month
                     if (lotExpiration < DateTime.Today.AddMonths(1))
                     {
-                        ShowInfo?.Invoke($"Datum expirace materiálu ({lotExpiration:dd.MM.yyyy}) je menší než 1 měsíc. Zkontroluj případně uprav expiraci...");
+                        ShowInfo?.Invoke($"Datum expirace materiálu ({lotExpiration:dd.MM.yyyy}) je menší než 1 měsíc.\nZkontroluj případně uprav expiraci...");
                         //View.ShowInfo($"Datum expirace materiálu ({lotExpiration:dd.MM.yyyy}) je menší než 1 měsíc. Zkontroluj případně uprav expiraci...");
                     }
 

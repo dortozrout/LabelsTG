@@ -451,13 +451,13 @@ namespace LabelsTG
         /// </summary>
         private void WriteConfig()
         {
-            string configFilePath = Configuration.ConfigFile;
+            //string configFilePath = Configuration.ConfigFile;
             try
             {
                 Configuration.SaveConfiguration();
                 // Update the ConfigItem in the list
                 int index = View.listView.SelectedItem;
-                Model.SettingsFiles[0] = new ConfigItem<string>("ConfigFile", "", "", true, () => Path.Combine(Configuration.ConfigPath, Configuration.ConfigFile), (value) => { Configuration.ConfigFile = value; }, "", File.ReadAllText(configFilePath));
+                //Model.SettingsFiles[0] = new ConfigItem<string>("ConfigFile", "", "", true, () => configFilePath, (value) => { Configuration.ConfigFile = value; }, "", File.ReadAllText(configFilePath));
                 View.SetListViewSource(Model.GetSettingsFiles());
                 View.listView.SelectedItem = index;
             }
