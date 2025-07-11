@@ -133,7 +133,7 @@ namespace LabelsTG.Labels
                     result = LoadConfigFile(ConfigFile); //a nacte ho
                 }
             }
-            Initialize();
+            //Initialize();
             return result;
         }
 

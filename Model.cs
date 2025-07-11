@@ -56,7 +56,7 @@ namespace LabelsTG
         /// </summary>
         public List<EplFile> GetEplFiles()
         {
-            return EplFiles;
+            return EplFiles.OrderBy(x => x.Key, StringComparer.OrdinalIgnoreCase).ToList();
         }
 
         /// <summary>

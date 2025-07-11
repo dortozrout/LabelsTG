@@ -753,8 +753,9 @@ namespace LabelsTG
                 string filePath = Path.Combine(Configuration.TemplatesDirectory, fileName);
                 EplFile newEplFile = new(fileName, filePath, template);
                 Model.AddEplFile(newEplFile);
-                View.SetListViewSource(Model.GetEplFiles());
-                int index = Model.EplFiles.FindIndex(file => file.Key == newEplFile.Key);
+                var eplFiles = Model.GetEplFiles();
+                View.SetListViewSource(eplFiles);
+                int index = eplFiles.FindIndex(file => file.Key == newEplFile.Key);
                 View.listView.SelectedItem = index;
                 View.textView.Text = newEplFile.Template;
                 View.textView.SetFocus();
