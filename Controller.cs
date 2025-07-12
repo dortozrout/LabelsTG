@@ -186,8 +186,9 @@ namespace LabelsTG
                 }
                 var newEplFile = new EplFile(newFileName, Path.Combine(Configuration.TemplatesDirectory, newFileName), template);
                 Model.AddEplFile(newEplFile);
-                View.SetListViewSource(Model.GetEplFiles());
-                int index = Model.EplFiles.FindIndex(file => file.Key == newEplFile.Key);
+                currentListWievSource = Model.GetEplFiles();
+                View.SetListViewSource(currentListWievSource);
+                int index = currentListWievSource.FindIndex(file => file.Key == newEplFile.Key);
                 View.listView.SelectedItem = index;
                 View.listView.EnsureSelectedItemVisible();
                 View.textView.Text = newEplFile.Template;
