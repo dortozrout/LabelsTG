@@ -508,14 +508,6 @@ namespace LabelsTG
             {
                 PrintEplFile(eplFile);
             }
-            else if (selectedItem is ConfigItem<string> configItem && configItem.IsFile)
-            {
-                View.SetTextView(configItem.Content);
-            }
-            else
-            {
-                View.ShowError("Unsupported item type for opening.");
-            }
         }
 
         /// <summary>
