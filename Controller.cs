@@ -27,6 +27,7 @@ namespace LabelsTG
             Model = model;
 
             View.NewFileRequested += CreateNewFile;
+            View.CopyFileRequested += CopySelectedEplFile;
             View.SaveFileRequested += SaveSelectedFile;
             View.DeleteFileRequested += DeleteSelectedFile;
             View.PrintFileRequested += () => PrintEplFile();
@@ -543,6 +544,11 @@ namespace LabelsTG
                 CreateNewFile();
                 args.Handled = true;
             }
+            else if (key.Key == (Key.C | Key.ShiftMask|Key.CtrlMask))
+            {
+                CopySelectedEplFile();
+                args.Handled = true;
+            }
             else if (key.Key == (Key.E | Key.CtrlMask))
             {
                 View.textView.SetFocus();
@@ -758,6 +764,37 @@ namespace LabelsTG
             catch (Exception ex)
             {
                 View.ShowError($"Error loading file: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Copies an existing EPL file to a new file with a user-defined name.
+        /// </summary>
+        private void CopySelectedEplFile()
+        {
+            if (GetSelectedItem() is not EplFile eplFile)
+            {
+                View.ShowError("No EPL file selected for copying.");
+                return;
+            }
+            string? newFileName = View.LaunchDialog("Enter new file name", eplFile.Key);
+            if (string.IsNullOrEmpty(newFileName)) return;
+            string newFilePath = Path.Combine(Configuration.TemplatesDirectory, newFileName);
+            try
+            {
+                File.Copy(eplFile.FileAddress, newFilePath, true);
+                EplFile newEplFile = new(newFileName, newFilePath, eplFile.Template);
+                Model.AddEplFile(newEplFile);
+                currentListWievSource = Model.GetEplFiles();
+                View.SetListViewSource(currentListWievSource);
+                int index = currentListWievSource.FindIndex(file => file.Key == newEplFile.Key);
+                View.listView.SelectedItem = index;
+                View.textView.Text = newEplFile.Template;
+                View.textView.SetFocus();
+            }
+            catch (Exception ex)
+            {
+                View.ShowError($"Error copying file: {ex.Message}");
             }
         }
 

@@ -12,6 +12,7 @@ namespace LabelsTG
     public class View : Window
     {
         public event Action? NewFileRequested;
+        public event Action? CopyFileRequested;
         public event Action? SaveFileRequested;
         public event Action? DeleteFileRequested;
         public event Action? PrintFileRequested;
@@ -95,6 +96,7 @@ namespace LabelsTG
                 new MenuBarItem("_File", new MenuItem[]
                 {
                     new("New", "", () => NewFileRequested?.Invoke()),
+                    new("Copy", "", () => CopyFileRequested?.Invoke()),
                     new("Open new file", "", () => AddNewFileRequested?.Invoke()),
                     new("Edit", "", () => textView?.SetFocus()),
                     new("Edit in external editor", "", () => OpenInExtEditorRequested?.Invoke()),
