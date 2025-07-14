@@ -67,6 +67,14 @@ namespace LabelsTG
             EplFiles.Add(eplFile);
         }
 
+        public void RemoveEplFile(EplFile eplFile)
+        {
+            if (eplFile != null && EplFiles.Contains(eplFile))
+            {
+                EplFiles.Remove(eplFile);
+            }
+        }
+
         /// <summary>
         /// Prints the given EPL file. If printer type is 3, prints to screen; otherwise, sends to printer and logs if needed.
         /// </summary>

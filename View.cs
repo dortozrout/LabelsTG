@@ -13,6 +13,7 @@ namespace LabelsTG
     {
         public event Action? NewFileRequested;
         public event Action? CopyFileRequested;
+        public event Action? RenameFileRequested;
         public event Action? SaveFileRequested;
         public event Action? DeleteFileRequested;
         public event Action? PrintFileRequested;
@@ -97,6 +98,7 @@ namespace LabelsTG
                 {
                     new("New", "", () => NewFileRequested?.Invoke()),
                     new("Copy", "", () => CopyFileRequested?.Invoke()),
+                    new("Rename", "", () => RenameFileRequested?.Invoke()),
                     new("Open new file", "", () => AddNewFileRequested?.Invoke()),
                     new("Edit", "", () => textView?.SetFocus()),
                     new("Edit in external editor", "", () => OpenInExtEditorRequested?.Invoke()),

@@ -28,6 +28,7 @@ namespace LabelsTG
 
             View.NewFileRequested += CreateNewFile;
             View.CopyFileRequested += CopySelectedEplFile;
+            View.RenameFileRequested += RenameSelectedEplFile;
             View.SaveFileRequested += SaveSelectedFile;
             View.DeleteFileRequested += DeleteSelectedFile;
             View.PrintFileRequested += () => PrintEplFile();
@@ -534,27 +535,32 @@ namespace LabelsTG
                 DeleteSelectedFile();
                 args.Handled = true;
             }
-            else if (key.Key == (Key.O | Key.CtrlMask) || key.Key == Key.F7)
+            else if (key.Key == (Key.O | Key.CtrlMask) || key.Key == Key.F9)
             {
                 AddNewFile(fromMenu: false);
                 args.Handled = true;
             }
-            else if (key.Key == (Key.N | Key.CtrlMask))
+            else if (key.Key == (Key.N | Key.CtrlMask) || key.Key == Key.F7)
             {
                 CreateNewFile();
                 args.Handled = true;
             }
-            else if (key.Key == (Key.C | Key.ShiftMask|Key.CtrlMask))
+            else if (key.Key == (Key.C | Key.ShiftMask | Key.CtrlMask) || key.Key == Key.F5)
             {
                 CopySelectedEplFile();
                 args.Handled = true;
             }
-            else if (key.Key == (Key.E | Key.CtrlMask))
+            else if (key.Key == (Key.R | Key.CtrlMask) || key.Key == Key.F6)
+            {
+                RenameSelectedEplFile();
+                args.Handled = true;
+            }
+            else if (key.Key == (Key.E | Key.CtrlMask) || key.Key == Key.F3)
             {
                 View.textView.SetFocus();
                 args.Handled = true;
             }
-            else if (key.Key == (Key.E | Key.CtrlMask | Key.ShiftMask))
+            else if (key.Key == (Key.E | Key.CtrlMask | Key.ShiftMask) || key.Key == Key.F4)
             {
                 OpenInExternalEditor();
                 args.Handled = true;
@@ -772,11 +778,7 @@ namespace LabelsTG
         /// </summary>
         private void CopySelectedEplFile()
         {
-            if (GetSelectedItem() is not EplFile eplFile)
-            {
-                View.ShowError("No EPL file selected for copying.");
-                return;
-            }
+            if (GetSelectedItem() is not EplFile eplFile) return;
             string? newFileName = View.LaunchDialog("Enter new file name", eplFile.Key);
             if (string.IsNullOrEmpty(newFileName)) return;
             string newFilePath = Path.Combine(Configuration.TemplatesDirectory, newFileName);
@@ -795,6 +797,34 @@ namespace LabelsTG
             catch (Exception ex)
             {
                 View.ShowError($"Error copying file: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Renames the currently selected EPL file to a new name provided by the user. 
+        /// </summary>
+        private void RenameSelectedEplFile()
+        {
+            EplFile? eplFile = GetSelectedItem() as EplFile;
+            if (eplFile == null) return;
+            string? newFileName = View.LaunchDialog("Enter new file name", eplFile.Key);
+            if (string.IsNullOrEmpty(newFileName)) return;
+            string newFilePath = Path.Combine(Configuration.TemplatesDirectory, newFileName);
+            try
+            {
+                File.Move(eplFile.FileAddress, newFilePath);
+                EplFile renamedEplFile = new(newFileName, newFilePath, eplFile.Template);
+                Model.RemoveEplFile(eplFile);
+                Model.AddEplFile(renamedEplFile);
+                currentListWievSource = Model.GetEplFiles();
+                View.SetListViewSource(currentListWievSource);
+                int index = currentListWievSource.FindIndex(file => file.Key == renamedEplFile.Key);
+                View.listView.SelectedItem = index; 
+            }
+            catch (Exception ex)
+            {
+                View.ShowError($"Error renaming file: {ex.Message}");
+                return;
             }
         }
 
