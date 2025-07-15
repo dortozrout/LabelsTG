@@ -21,6 +21,7 @@ namespace LabelsTG
         public event Action? RestartRequested;
         public event Action? AddNewFileRequested;
         public event Action? ShowHelpRequested;
+        public event Action? EditFileRequested;
         public event Action? OpenInExtEditorRequested;
 
         public ListView listView;
@@ -100,7 +101,7 @@ namespace LabelsTG
                     new("Copy", "", () => CopyFileRequested?.Invoke()),
                     new("Rename", "", () => RenameFileRequested?.Invoke()),
                     new("Open new file", "", () => AddNewFileRequested?.Invoke()),
-                    new("Edit", "", () => textView?.SetFocus()),
+                    new("Edit", "", () => EditFileRequested?.Invoke()),
                     new("Edit in external editor", "", () => OpenInExtEditorRequested?.Invoke()),
                     new("Save", "", () => SaveFileRequested?.Invoke()),
                     new("Delete", "", () => DeleteFileRequested?.Invoke()),
@@ -221,10 +222,10 @@ namespace LabelsTG
         /// The dialog will close when the user presses Enter or clicks OK, returning the text from the text field.
         /// If the user presses ESC or clicks CANCEL, the text field will be cleared and the dialog will close, returning an empty string.
         /// </remarks>
-        public static string LaunchDialog(string prompt, string defaultText)
+        public static string LaunchDialog(string prompt, string defaultText, string dialogTitle = "Input")
         {
             // Create a new dialog
-            var dialog = new Dialog("Input", 50, 20) { ColorScheme = dialogColorScheme };
+            var dialog = new Dialog(dialogTitle, 50, 20) { ColorScheme = dialogColorScheme };
             // Create a new label
             var label = new Label($"{prompt}:")
             {

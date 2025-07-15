@@ -4,6 +4,7 @@ using Terminal.Gui;
 using System.Diagnostics;
 using System.IO;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace LabelsTG
 {
@@ -37,6 +38,7 @@ namespace LabelsTG
             View.AddNewFileRequested += () => AddNewFile(true);
             Model.OnFilePrintToScreen += (body) => View.SetTextView(body);
             View.ShowHelpRequested += () => RunExternalProcess(readmeUrl);
+            View.EditFileRequested += EditSelectedFile;
             View.OpenInExtEditorRequested += () => OpenInExternalEditor();
 
             View.Loaded += () =>
@@ -155,6 +157,7 @@ namespace LabelsTG
                 View.buttonEditSettings.Text = "EPL files";
                 View.label.Text = "Settings file:";
                 View.TextToggler = "EPL files";
+                View.textView.CanFocus = true;
             }
             else
             {
@@ -168,6 +171,10 @@ namespace LabelsTG
                 View.buttonEditSettings.Text = "Settings";
                 View.label.Text = "EPL template:";
                 View.TextToggler = "Settings";
+                if (!string.IsNullOrEmpty(Configuration.MasterTemplateAddress))
+                {
+                    View.textView.CanFocus = false;
+                }
             }
             View.listView.SelectedItem = 0;
         }
@@ -179,6 +186,11 @@ namespace LabelsTG
         {
             if (!isSetting)
             {
+                if (!string.IsNullOrEmpty(Configuration.MasterTemplateAddress))
+                {
+                    View.ShowError("Cannot create new file when master template is set.");
+                    return;
+                }
                 var newFileName = View.LaunchDialog("Enter file name", "newfile.txt");
                 //Create a new file with the given name and a default template
                 string template = "N\nI8,B\n";
@@ -228,6 +240,11 @@ namespace LabelsTG
         public void DeleteSelectedFile()
         {
             BaseItem item = GetSelectedItem();
+            if (item is EplFile && !string.IsNullOrEmpty(Configuration.MasterTemplateAddress))
+            {
+                View.ShowError("Cannot delete EPL file when master template is set.");
+                return;
+            }
             if (item != null)
             {
                 bool del = View.Confirm($"Are you sure you want to delete {item.Key}?");
@@ -235,6 +252,11 @@ namespace LabelsTG
             }
             if (item is EplFile eplFile)
             {
+                // if (!string.IsNullOrEmpty(Configuration.MasterTemplateAddress))
+                // {
+                //     View.ShowError("Cannot delete EPL file when master template is set.");
+                //     return;
+                // }
                 DeleteAndNotify(eplFile);
             }
             else if (item is ConfigItem<string> configItem)
@@ -277,6 +299,11 @@ namespace LabelsTG
             BaseItem item = GetSelectedItem();
             if (item is EplFile eplFile)
             {
+                if (!string.IsNullOrEmpty(Configuration.MasterTemplateAddress))
+                {
+                    View.ShowError("Cannot save EPL file when master template is set.");
+                    return;
+                }
                 eplFile.Template = View.textView.Text.ToString();
                 SaveAndNotify(item);
             }
@@ -557,7 +584,7 @@ namespace LabelsTG
             }
             else if (key.Key == (Key.E | Key.CtrlMask) || key.Key == Key.F3)
             {
-                View.textView.SetFocus();
+                EditSelectedFile();
                 args.Handled = true;
             }
             else if (key.Key == (Key.E | Key.CtrlMask | Key.ShiftMask) || key.Key == Key.F4)
@@ -750,6 +777,11 @@ namespace LabelsTG
         /// </summary>
         private void HandleAddNewEplFile()
         {
+            if (!string.IsNullOrEmpty(Configuration.MasterTemplateAddress))
+            {
+                View.ShowError("Cannot add new file when master template is set.");
+                return;
+            }
             string? fileAddress = View.LaunchOpenDialog("Select a file", Configuration.TemplatesDirectory);
             if (string.IsNullOrEmpty(fileAddress)) return;
 
@@ -778,8 +810,13 @@ namespace LabelsTG
         /// </summary>
         private void CopySelectedEplFile()
         {
+            if (!string.IsNullOrEmpty(Configuration.MasterTemplateAddress))
+            {
+                View.ShowError("Cannot copy file when master template is set.");
+                return;
+            }
             if (GetSelectedItem() is not EplFile eplFile) return;
-            string? newFileName = View.LaunchDialog("Enter new file name", eplFile.Key);
+            string? newFileName = View.LaunchDialog("Enter new file name", eplFile.Key, "Copy of " + eplFile.Key);
             if (string.IsNullOrEmpty(newFileName)) return;
             string newFilePath = Path.Combine(Configuration.TemplatesDirectory, newFileName);
             try
@@ -805,9 +842,14 @@ namespace LabelsTG
         /// </summary>
         private void RenameSelectedEplFile()
         {
+            if (!string.IsNullOrEmpty(Configuration.MasterTemplateAddress))
+            {
+                View.ShowError("Cannot rename file when master template is set.");
+                return;
+            }
             EplFile? eplFile = GetSelectedItem() as EplFile;
             if (eplFile == null) return;
-            string? newFileName = View.LaunchDialog("Enter new file name", eplFile.Key);
+            string? newFileName = View.LaunchDialog("Enter new file name", eplFile.Key, "Rename " + eplFile.Key);
             if (string.IsNullOrEmpty(newFileName)) return;
             string newFilePath = Path.Combine(Configuration.TemplatesDirectory, newFileName);
             try
@@ -819,13 +861,24 @@ namespace LabelsTG
                 currentListWievSource = Model.GetEplFiles();
                 View.SetListViewSource(currentListWievSource);
                 int index = currentListWievSource.FindIndex(file => file.Key == renamedEplFile.Key);
-                View.listView.SelectedItem = index; 
+                View.listView.SelectedItem = index;
             }
             catch (Exception ex)
             {
                 View.ShowError($"Error renaming file: {ex.Message}");
                 return;
             }
+        }
+
+        private void EditSelectedFile()
+        {
+            BaseItem? selectedItem = GetSelectedItem();
+            if (selectedItem is EplFile eplFile && !string.IsNullOrEmpty(Configuration.MasterTemplateAddress))
+            {
+                View.ShowError("Cannot edit EPL file when master template is set.");
+                return;
+            }
+            View.textView.SetFocus();
         }
 
         /// <summary>
@@ -861,6 +914,11 @@ namespace LabelsTG
             BaseItem? selectedItem = GetSelectedItem();
             if (selectedItem is EplFile eplFile)
             {
+                if (!string.IsNullOrEmpty(Configuration.MasterTemplateAddress))
+                {
+                    View.ShowError("Cannot open EPL file in external editor when master template is set.");
+                    return;
+                }
                 RunExternalProcess(eplFile.FileAddress, waitForExit: false);
             }
             else if (selectedItem is ConfigItem<string> configItem && configItem.IsFile)
