@@ -10,6 +10,7 @@ namespace LabelsTG.Labels
         public static event Action<string> OnPrintError;
         public static void PrintLabel(string telo)
         {
+            telo = Environment.NewLine + "N" + Environment.NewLine + telo; // Add "N" at the beginning to clear the previous label
             try
             {
                 if (Configuration.PrinterType == 0)
@@ -180,7 +181,7 @@ namespace LabelsTG.Labels
                     // Write ZPL String to connection
                     StreamWriter writer = new StreamWriter(client.GetStream(), Encoding.GetEncoding("windows-1250"));
                     //pridavam "N" na zacatek kvuli vymazani predchoziho stitku
-                    writer.Write("N" + Environment.NewLine);
+                    //writer.Write("N" + Environment.NewLine);
                     writer.Write(EPLString);
                     writer.Flush();
 
