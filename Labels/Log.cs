@@ -20,28 +20,26 @@ namespace LabelsTG.Labels
             }
             try
             {
-                using (StreamWriter sw = new StreamWriter(path, true))
-                {
-                    sw.WriteLine(message);
-                }
+                using StreamWriter sw = new(path, true);
+                sw.WriteLine(message);
             }
             catch (Exception ex)
             {
                 // Handle the error by invoking the OnError event
                 OnError?.Invoke($"Error writing to log file: {ex.Message}");
-                //ErrorHandler.HandleError("Log", ex);
             }
         }
         private static string Parse(string eplBody)
         {
-            StringBuilder sb = new StringBuilder();
+            StringBuilder sb = new();
             foreach (var line in eplBody.Split('\n'))
             {
-                if (line.Trim().StartsWith("P"))
+                if (line.Trim().StartsWith('P'))
                 {
+                    //
                     sb.Append($"{line.Trim().Substring(1)}\n");
                 }
-                else if (line.Contains("\""))
+                else if (line.Contains('\"'))
                 {
                     int start = line.IndexOf('\"') + 1;
                     int end = line.LastIndexOf('\"');

@@ -13,14 +13,6 @@ namespace LabelsTG.Labels
             var className = methodBase.DeclaringType.Name;
             var methodName = methodBase.Name;
             View.ShowError($"{className}.{methodName}\n{exception.Message}\n{exception.StackTrace}");
-            // Application.Init();
-            // MessageBox.ErrorQuery(
-            //     100, 10,
-            //     "Error",
-            //     $"{className}.{methodName}\n{exception.Message}\n{exception.StackTrace}",
-            //     "OK"
-            // );
-            // Application.Shutdown();
             Environment.Exit(1);
         }
     }

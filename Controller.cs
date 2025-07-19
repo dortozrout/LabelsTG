@@ -847,8 +847,7 @@ namespace LabelsTG
                 View.ShowError("Cannot rename file when master template is set.");
                 return;
             }
-            EplFile? eplFile = GetSelectedItem() as EplFile;
-            if (eplFile == null) return;
+            if (GetSelectedItem() is not EplFile eplFile) return;
             string? newFileName = View.LaunchDialog("Enter new file name", eplFile.Key, "Rename " + eplFile.Key);
             if (string.IsNullOrEmpty(newFileName)) return;
             string newFilePath = Path.Combine(Configuration.TemplatesDirectory, newFileName);
@@ -873,7 +872,7 @@ namespace LabelsTG
         private void EditSelectedFile()
         {
             BaseItem? selectedItem = GetSelectedItem();
-            if (selectedItem is EplFile eplFile && !string.IsNullOrEmpty(Configuration.MasterTemplateAddress))
+            if (selectedItem is EplFile && !string.IsNullOrEmpty(Configuration.MasterTemplateAddress))
             {
                 View.ShowError("Cannot edit EPL file when master template is set.");
                 return;

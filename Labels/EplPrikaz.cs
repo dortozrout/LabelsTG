@@ -1,18 +1,11 @@
 namespace LabelsTG.Labels
 {
-    public class EplFile : BaseItem, IComparable
+    public class EplFile(string name, string address, string template) : BaseItem(name, "EPL File"), IComparable
     {
-        public string FileAddress { get; private set; }
-        public string Template { get; set; }
+        public string FileAddress { get; private set; } = address;
+        public string Template { get; set; } = template;
         public string Body { get; set; }
         public bool Print { get; set; } = true;
-
-        public EplFile(string name, string address, string template)
-            : base(name, "EPL File")
-        {
-            FileAddress = address;
-            Template = template;
-        }
 
         public int CompareTo(object obj)
         {
