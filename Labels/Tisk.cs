@@ -10,7 +10,7 @@ namespace LabelsTG.Labels
         public static event Action<string> OnPrintError;
         public static void PrintLabel(string telo)
         {
-            telo = Environment.NewLine + "N" + Environment.NewLine + telo; // Add "N" at the beginning to clear the previous label
+            telo = Environment.NewLine + telo; // přidání nového řádku na začátek, aby se tiskárna vyčistila
             try
             {
                 if (Configuration.PrinterType == 0)
