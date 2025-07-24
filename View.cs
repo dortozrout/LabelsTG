@@ -97,16 +97,16 @@ namespace LabelsTG
             [
                 new MenuBarItem("_File", new MenuItem[]
                 {
-                    new("New", "", () => NewFileRequested?.Invoke()),
-                    new("Copy", "", () => CopyFileRequested?.Invoke()),
-                    new("Rename", "", () => RenameFileRequested?.Invoke()),
-                    new("Open new file", "", () => AddNewFileRequested?.Invoke()),
-                    new("Edit", "", () => EditFileRequested?.Invoke()),
-                    new("Edit in external editor", "", () => OpenInExtEditorRequested?.Invoke()),
-                    new("Save", "", () => SaveFileRequested?.Invoke()),
-                    new("Delete", "", () => DeleteFileRequested?.Invoke()),
-                    new("Print", "", () => PrintFileRequested?.Invoke()),
-                    new("Quit", "", () => Application.RequestStop()),
+                    new("New", "Ctrl+N|F7", () => NewFileRequested?.Invoke()),
+                    new("Copy", "Ctrl+Shift+C|F5", () => CopyFileRequested?.Invoke()),
+                    new("Rename", "Ctrl+R|F6", () => RenameFileRequested?.Invoke()),
+                    new("Open new file", "Ctrl+O|F9", () => AddNewFileRequested?.Invoke()),
+                    new("Edit", "Ctrl+E|F3", () => EditFileRequested?.Invoke()),
+                    new("Edit in external editor", "Ctrl+Shift+E|F4", () => OpenInExtEditorRequested?.Invoke()),
+                    new("Save", "Ctrl+S|F2", () => SaveFileRequested?.Invoke()),
+                    new("Delete", "Shift+Del|F8", () => DeleteFileRequested?.Invoke()),
+                    new("Print", "Enter", () => PrintFileRequested?.Invoke()),
+                    new("Quit", "Alt+Q", () => Application.RequestStop()),
                 }),
                 new MenuBarItem("_Edit", new MenuItem[]
                 {
