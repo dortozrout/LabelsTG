@@ -412,18 +412,12 @@ namespace LabelsTG.Labels
         }
         private DateTime GetLotExpiration(string key)
         {
-            if (string.IsNullOrEmpty(key) || key == "0")
-            {
-                continueProcessing = false;
-                return DateTime.MaxValue;
-            }
             if (CurrentEplFile == null)
             {
                 continueProcessing = false;
                 return DateTime.MaxValue;
             }
-
-            if (key == "0")
+            if (string.IsNullOrEmpty(key) || key == "0")
             {
                 return DateTime.MaxValue;
             }
