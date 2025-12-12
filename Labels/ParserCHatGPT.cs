@@ -384,22 +384,17 @@ namespace LabelsTG.Labels
                 {
                     DateTime lotExpiration = GetLotExpiration(keyParts[2]);
 
-                    // Check if the lot expiration date is in the past
-                    if (lotExpiration < DateTime.Today)
+                    // If drift is zero prefer lot expiration (after validations)
+                    if (drift == 0)
                     {
-                        ShowInfo?.Invoke($"Datum expirace materiálu ({lotExpiration:dd.MM.yyyy}) je v minulosti.\nŠtítky nebudou vytištěny!\nZkontroluj případně uprav expiraci...");
-                        //View.ShowInfo($"Datum expirace materiálu ({lotExpiration:dd.MM.yyyy}) je v minulosti. Štítky nebudou vytištěny! Zkontroluj případně uprav expiraci...");
-                        continueProcessing = false;
-                        CurrentEplFile.Print = false;
-                        return string.Empty;
+                        if (!ValidateLotExpiration(lotExpiration))
+                            return string.Empty;
+                        return lotExpiration.ToString(format);
                     }
 
-                    // Warn if the lot expiration date is within one month
-                    if (lotExpiration < DateTime.Today.AddMonths(1))
-                    {
-                        ShowInfo?.Invoke($"Datum expirace materiálu ({lotExpiration:dd.MM.yyyy}) je menší než 1 měsíc.\nZkontroluj případně uprav expiraci...");
-                        //View.ShowInfo($"Datum expirace materiálu ({lotExpiration:dd.MM.yyyy}) je menší než 1 měsíc. Zkontroluj případně uprav expiraci...");
-                    }
+                    // Validate lot expiration for non-zero drift
+                    if (!ValidateLotExpiration(lotExpiration))
+                        return string.Empty;
 
                     // Return the earlier of the bottle expiration and lot expiration dates
                     DateTime dateToPrint = bottleExpiration < lotExpiration ? bottleExpiration : lotExpiration;
@@ -433,6 +428,31 @@ namespace LabelsTG.Labels
             }
             lotExpiration = HandleInput<DateTime>(CurrentEplFile, "Zadej expiraci: ", DateTime.MaxValue.ToString("dd.MM.yyyy"));
             return lotExpiration;
+        }
+
+        // Nová pomocná metoda pro opakované kontroly expirace
+        private bool ValidateLotExpiration(DateTime lotExpiration)
+        {
+            if (CurrentEplFile == null)
+            {
+                continueProcessing = false;
+                return false;
+            }
+
+            if (lotExpiration < DateTime.Today)
+            {
+                ShowInfo?.Invoke($"Datum expirace materiálu ({lotExpiration:dd.MM.yyyy}) je v minulosti.\nŠtítky nebudou vytištěny!\nZkontroluj případně uprav expiraci...");
+                continueProcessing = false;
+                CurrentEplFile.Print = false;
+                return false;
+            }
+
+            if (lotExpiration < DateTime.Today.AddMonths(1))
+            {
+                ShowInfo?.Invoke($"Datum expirace materiálu ({lotExpiration:dd.MM.yyyy}) je menší než 1 měsíc.\nZkontroluj případně uprav expiraci...");
+            }
+
+            return true;
         }
 
         private string HandlePocetKey(string key)
