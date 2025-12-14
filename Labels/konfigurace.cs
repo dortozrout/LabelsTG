@@ -10,7 +10,7 @@ namespace LabelsTG.Labels
     class Configuration
     {
         //Nazev aplikace ktery se zobrazi v hlavicce
-        public const string AppName = "TG202507";
+        public const string AppName = "TG202512";
         public static readonly Encoding DefaultEncoding = Encoding.UTF8; //default encoding for reading files
 
         //Adresa konfig souboru
@@ -206,36 +206,10 @@ namespace LabelsTG.Labels
                     break;
             }
         }
-        public static Terminal.Gui.Color SetupColor(string color, Terminal.Gui.Color defaultColor)
+        private static Terminal.Gui.Color SetupColor(string color, Terminal.Gui.Color defaultColor)
         {
             var parsedColor = ParseColor(color);
             return parsedColor ?? defaultColor;
-            // if (string.IsNullOrWhiteSpace(color))
-            //     return defaultColor;
-
-            // // Trim and normalize (remove spaces, hyphens and underscores)
-            // string normalized = color.Trim();
-            // string compact = normalized.Replace(" ", "", StringComparison.Ordinal)
-            //                            .Replace("-", "", StringComparison.Ordinal)
-            //                            .Replace("_", "", StringComparison.Ordinal);
-
-            // // Try numeric value first (např. "3" nebo "15")
-            // if (int.TryParse(compact, out int numeric))
-            // {
-            //     if (Enum.IsDefined(typeof(Terminal.Gui.Color), numeric))
-            //         return (Terminal.Gui.Color)numeric;
-            // }
-
-            // // Try parse enum ignoring case (podporuje "brightblue" i "BrightBlue")
-            // if (Enum.TryParse<Terminal.Gui.Color>(compact, ignoreCase: true, out var parsedColor))
-            //     return parsedColor;
-
-            // // Fallback na originální trimmed řetězec (pro případ, že enum obsahuje jiný formát)
-            // if (Enum.TryParse<Terminal.Gui.Color>(normalized, ignoreCase: true, out parsedColor))
-            //     return parsedColor;
-
-            // // Pokud nic nefunguje, vrať výchozí barvu
-            // return defaultColor;
         }
         public static Terminal.Gui.Color? ParseColor(string color)
         {
