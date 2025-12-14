@@ -208,9 +208,63 @@ namespace LabelsTG.Labels
         }
         public static Terminal.Gui.Color SetupColor(string color, Terminal.Gui.Color defaultColor)
         {
-            return Enum.TryParse(color, true, out Terminal.Gui.Color parsedColor)
-                ? parsedColor
-                : defaultColor;
+            var parsedColor = ParseColor(color);
+            return parsedColor ?? defaultColor;
+            // if (string.IsNullOrWhiteSpace(color))
+            //     return defaultColor;
+
+            // // Trim and normalize (remove spaces, hyphens and underscores)
+            // string normalized = color.Trim();
+            // string compact = normalized.Replace(" ", "", StringComparison.Ordinal)
+            //                            .Replace("-", "", StringComparison.Ordinal)
+            //                            .Replace("_", "", StringComparison.Ordinal);
+
+            // // Try numeric value first (např. "3" nebo "15")
+            // if (int.TryParse(compact, out int numeric))
+            // {
+            //     if (Enum.IsDefined(typeof(Terminal.Gui.Color), numeric))
+            //         return (Terminal.Gui.Color)numeric;
+            // }
+
+            // // Try parse enum ignoring case (podporuje "brightblue" i "BrightBlue")
+            // if (Enum.TryParse<Terminal.Gui.Color>(compact, ignoreCase: true, out var parsedColor))
+            //     return parsedColor;
+
+            // // Fallback na originální trimmed řetězec (pro případ, že enum obsahuje jiný formát)
+            // if (Enum.TryParse<Terminal.Gui.Color>(normalized, ignoreCase: true, out parsedColor))
+            //     return parsedColor;
+
+            // // Pokud nic nefunguje, vrať výchozí barvu
+            // return defaultColor;
+        }
+        public static Terminal.Gui.Color? ParseColor(string color)
+        {
+            if (string.IsNullOrWhiteSpace(color))
+                return null;
+
+            // Trim and normalize (remove spaces, hyphens and underscores)
+            string normalized = color.Trim();
+            string compact = normalized.Replace(" ", "", StringComparison.Ordinal)
+                                       .Replace("-", "", StringComparison.Ordinal)
+                                       .Replace("_", "", StringComparison.Ordinal);
+
+            // Try numeric value first (např. "3" nebo "15")
+            if (int.TryParse(compact, out int numeric))
+            {
+                if (Enum.IsDefined(typeof(Terminal.Gui.Color), numeric))
+                    return (Terminal.Gui.Color)numeric;
+            }
+
+            // Try parse enum ignoring case (podporuje "brightblue" i "BrightBlue")
+            if (Enum.TryParse<Terminal.Gui.Color>(compact, ignoreCase: true, out var parsedColor))
+                return parsedColor;
+
+            // Fallback na originální trimmed řetězec (pro případ, že enum obsahuje jiný formát)
+            if (Enum.TryParse<Terminal.Gui.Color>(normalized, ignoreCase: true, out parsedColor))
+                return parsedColor;
+
+            // Pokud nic nefunguje, vrať null
+            return null;
         }
         public static Encoding SetupEncoding(string encodingName)
         {

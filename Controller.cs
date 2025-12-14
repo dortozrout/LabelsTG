@@ -323,15 +323,17 @@ namespace LabelsTG
             }
             else if (item is ConfigItem<Color> configItemColor)
             {
-                if (Enum.TryParse(View.textView.Text.ToString(), out Color color))
+                var input = View.textView.Text.ToString() ?? "";
+                var parsed = Configuration.ParseColor(input);
+                if (parsed.HasValue)
                 {
-                    configItemColor.Value = color;
+                    configItemColor.Value = parsed.Value;
                     WriteConfig();
                     View.ShowInfo("Configuration file saved successfully.");
                 }
                 else
                 {
-                    View.ShowError("Invalid color format.");
+                    View.ShowError("Invalid color format. Configuration was not changed.");
                 }
             }
             else if (item is ConfigItem<System.Text.Encoding> configItemEncoding)
