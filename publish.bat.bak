@@ -1,0 +1,21 @@
+@echo off
+setlocal
+
+set PROJECT=InventreeIssue2.csproj
+set CONFIG=Release
+set RUNTIME=win-x64
+set OUT=.\publish
+set path=%cd:~0,3%dotnet-sdk-9.0.203-win-x64
+
+dotnet publish %PROJECT% ^
+    -c %CONFIG% ^
+    -r %RUNTIME% ^
+    --self-contained true ^
+    -p:PublishAot=true ^
+    -p:StripSymbols=true ^
+    -o %OUT%
+
+echo Hotovo (AOT) -> %OUT%
+
+endlocal
+pause

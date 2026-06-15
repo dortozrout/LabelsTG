@@ -240,6 +240,7 @@ namespace LabelsTG
                 Width = 40,
             };
             // Set the text field to be the default button
+            textField.SelectAll();
             textField.SetFocus();
             textField.KeyPress += (keyEvent) =>
             {
