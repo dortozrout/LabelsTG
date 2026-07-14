@@ -112,6 +112,10 @@ Speciální pole jsou:
 
 <time+> - zobrazí dotaz na počet minut o který se má čas posunout
 
+<time|[format:HH:mm]> - nahradí se aktuálním časem, volitelně lze zadat formát času.
+
+<time+30|[format:HH:mm]> - nahradí se časem za 30 minut, volitelně lze zadat formát času.
+
 <date|[format:dd.MM.yyyy]> - nahradí se aktuálním datem, volitelně lze
 zadat formát data.
 

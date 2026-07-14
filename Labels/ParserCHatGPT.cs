@@ -330,15 +330,29 @@ namespace LabelsTG.Labels
                 return string.Empty;
             }
 
-            int indexOfPlus = key.IndexOf('+');
-            if (indexOfPlus == -1)
-                return DateTime.Now.ToString("H:mm");
+            string[] keyParts = key.Trim('<', '>').Split(new[] { '+', '|' }, StringSplitOptions.None);
+            string format = "H:mm";
 
-            if (int.TryParse(key[(indexOfPlus + 1)..].TrimEnd('>'), out int drift))
-                return DateTime.Now.AddMinutes(drift).ToString("H:mm");
+            if (keyParts.Length > 1 && keyParts.Last().StartsWith("format:", StringComparison.OrdinalIgnoreCase))
+            {
+                format = keyParts.Last()["format:".Length..];
+                keyParts = keyParts.Take(keyParts.Length - 1).ToArray();
+            }
 
-            drift = HandleInput<int>(CurrentEplFile, "Zadej počet minut: ", "30");
-            return DateTime.Now.AddMinutes(drift).ToString("H:mm");
+            if (keyParts.Length == 1)
+                return DateTime.Now.ToString(format);
+
+            // if (keyParts.Length == 2 && string.IsNullOrEmpty(keyParts[1]))
+            // {
+            //     int drift = HandleInput<int>(CurrentEplFile, "Zadej počet minut: ", "30");
+            //     return DateTime.Now.AddMinutes(drift).ToString(format);
+            // }
+
+            if (int.TryParse(keyParts[1], out int driftValue))
+                return DateTime.Now.AddMinutes(driftValue).ToString(format);
+
+            int drift = HandleInput<int>(CurrentEplFile, "Zadej počet minut: ", "30");
+            return DateTime.Now.AddMinutes(drift).ToString(format);
         }
 
         private string HandleDateKey(string key)
