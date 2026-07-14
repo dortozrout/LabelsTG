@@ -340,20 +340,16 @@ namespace LabelsTG.Labels
             }
 
             if (keyParts.Length == 1)
-                return DateTime.Now.ToString(format);
-
-            // if (keyParts.Length == 2 && string.IsNullOrEmpty(keyParts[1]))
-            // {
-            //     int drift = HandleInput<int>(CurrentEplFile, "Zadej počet minut: ", "30");
-            //     return DateTime.Now.AddMinutes(drift).ToString(format);
-            // }
+                return DateTime.Now.ToStringExtended(format, includeDayOfYear: format.Contains("DDD", StringComparison.OrdinalIgnoreCase));
 
             if (int.TryParse(keyParts[1], out int driftValue))
-                return DateTime.Now.AddMinutes(driftValue).ToString(format);
+                return DateTime.Now.AddMinutes(driftValue).ToStringExtended(format, includeDayOfYear: format.Contains("DDD", StringComparison.OrdinalIgnoreCase));
 
-            int drift = HandleInput<int>(CurrentEplFile, "Zadej počet minut: ", "30");
-            return DateTime.Now.AddMinutes(drift).ToString(format);
+            int drift = HandleInput<int>(CurrentEplFile, "Zadej počet minut", "30");
+            return DateTime.Now.AddMinutes(drift).ToStringExtended(format, includeDayOfYear: format.Contains("DDD", StringComparison.OrdinalIgnoreCase));
         }
+
+        
 
         private string HandleDateKey(string key)
         {
@@ -549,6 +545,26 @@ namespace LabelsTG.Labels
 
             // Join the filtered lines back into a single string
             return string.Join(Environment.NewLine, filteredLines);
+        }
+    }
+    public static class DateTimeExtensions
+    {
+        /// <summary>
+        /// Converts a DateTime to a string using the specified format.
+        /// If includeDayOfYear is true, it replaces "DDD" in the format with the day of the year.
+        /// </summary>
+        /// <param name="date">The DateTime to convert.</param>
+        /// <param name="format">The format string.</param>
+        /// <param name="includeDayOfYear">Whether to include the day of the year in the format.</param>
+        /// <returns>A string representation of the DateTime.</returns>
+        public static string ToStringExtended(this DateTime date, string format, bool includeDayOfYear = false)
+        {
+            if (includeDayOfYear)
+            {
+                // Replace "DDD" with the day of the year
+                format = format.Replace("DDD", date.DayOfYear.ToString("D3"));
+            }
+            return date.ToString(format);
         }
     }
 }
