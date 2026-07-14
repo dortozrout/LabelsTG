@@ -118,6 +118,8 @@ Speciální pole jsou:
 
 <time+30|[format:HH:mm]> - nahradí se časem za 30 minut, volitelně lze zadat formát času.  
 
+(pozn. ve formátu lze použít DDD - den v roce, např. 1.1.2024 je 001, 31.12.2024 je 366)
+
 <date|[format:dd.MM.yyyy]> - nahradí se aktuálním datem, volitelně
 zadat formát data.  
 
